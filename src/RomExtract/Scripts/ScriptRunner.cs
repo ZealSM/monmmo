@@ -785,10 +785,24 @@ public static class ScriptRunner
                     }
                     else if (answerNought)
                     {
-                        // THE LEVER (308). Write the nought this project has been saying the run
-                        // answers since 214, rather than leaving whatever the last script left.
-                        // MODELLED — the cartridge's routine answers something and this is not
-                        // it; what it buys is that the answer stops depending on the walk order.
+                        // ADOPTED AT 310, and it is what this project has SAID the run does since
+                        // 214: an unanswerable routine leaves nought and the run takes the nought
+                        // arm. The code did not do that — it left whatever was in the slot, and
+                        // at 38 places that was the answer to a YES-OR-NO BOX earlier in the same
+                        // script, so the run took the non-zero arm because of a different
+                        // question's answer.
+                        //
+                        // Read off the bytes rather than argued: the compare that reads this slot
+                        // sits after a `call` whose block's whole content is one `special`, so
+                        // what it is meant to read is that routine's answer. The run cannot have
+                        // it and must fall back on a convention; a convention is nought and is
+                        // not "whatever a box said".
+                        //
+                        // Nought is still MODELLED and still not the cartridge's answer. What is
+                        // measured is the cost: 0 maps at every setting, and the only flags it
+                        // stops setting are 0x02C0-0x02CE, none of which hides anything.
+                        //
+                        // --leave-the-slot is the pre-310 behaviour, kept as the control.
                         Put(into, 0);
                         written[into] = 0;
                     }

@@ -1,3 +1,4 @@
+using PokeMmo.Core.Save;
 using PokeMmo.Core.Scripts;
 using PokeMmo.RomExtract.Scripts;
 using PokeMmo.Server;
@@ -257,6 +258,46 @@ public sealed class TheAnswerSlotTests
         Assert.False(left.TookADifferentArm, "and a comparison nobody branches on changes no arm");
     }
 
+    /// <summary>
+    /// <b>The adopted default: a routine this cannot answer leaves NOUGHT in the slot</b> (310).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Which is what this project has SAID the run does since 214, and what the code did not do:
+    /// it left whatever was there, so at 38 places the run took the non-zero arm because a
+    /// yes-or-no box earlier in the same script had written a 1 — a different question's answer.
+    /// </para>
+    /// <para>
+    /// Asserted on the leftover being GONE and on the branch, because a version that wrote the
+    /// nought and recorded the place anyway would satisfy half of it.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void TheAdoptedDefaultWritesNoughtAndThereIsNoLeftoverToRead()
+    {
+        byte[] script =
+        [
+            0x16, .. Word(0x800D), .. Word(5),                 // a box, or anything, leaves 5
+            0x26, .. Word(0x800D), .. Word(Unanswerable),      // and a routine this cannot answer
+            0x21, .. Word(0x800D), .. Word(5),                 // compare 0x800D, 5
+            0x06, 1, .. At(Elsewhere),                         // goto if EQUAL
+            0x29, .. Word(0x321),                              // setflag — only on the fall-through
+            0x02,
+        ];
+
+        ScriptRun left = ScriptRunner.Run(rom: Image(script), address: Start);
+        ScriptRun nought = ScriptRunner.Run(rom: Image(script), address: Start, answerNought: true);
+
+        // Pre-310: the 5 is still there, the compare is EQUAL, and the branch is taken.
+        Assert.Single(left.LeftInTheSlot);
+        Assert.DoesNotContain(0x321, left.FlagsSet);
+
+        // Adopted: nought is written, so there is no unanswered slot to record at all — and the
+        // compare is no longer equal, so the run falls through and takes the nought arm.
+        Assert.Empty(nought.LeftInTheSlot);
+        Assert.Contains(0x321, nought.FlagsSet);
+    }
+
     // ----------------------------------------- why there was anything in the slot at all
 
     /// <summary>
@@ -350,6 +391,38 @@ public sealed class TheAnswerSlotTests
         Assert.False(Autoplayer.Worse(NobodyRead(), TookAnother()));
         Assert.False(Autoplayer.Worse(Differs(), TookAnother()));
         Assert.False(Autoplayer.Worse(Harmless(), Harmless()));
+    }
+
+    /// <summary>
+    /// And <see cref="HowAScriptRuns"/> passes it BY DEFAULT — the lever is the way back, not the
+    /// way in.
+    /// </summary>
+    /// <remarks>
+    /// The runner's own parameter still defaults to the old behaviour, because it is the general
+    /// reader and the choice belongs to whoever is playing. So the adoption lives in exactly one
+    /// place and this is it: a break that flips the sense there passes every runner-level test in
+    /// this file (309's tautology, one file over).
+    /// </remarks>
+    [Fact]
+    public void AndTheReaderPassesItByDefault()
+    {
+        byte[] script =
+        [
+            0x16, .. Word(0x800D), .. Word(5),
+            0x26, .. Word(0x800D), .. Word(Unanswerable),
+            0x21, .. Word(0x800D), .. Word(5),
+            0x06, 1, .. At(Elsewhere),
+            0x29, .. Word(0x321),
+            0x02,
+        ];
+
+        var reader = new HowAScriptRuns(Image(script), new Dictionary<int, int>());
+
+        Assert.Contains(0x321, reader.Read(Start, [], new Bag()).FlagsSet);
+
+        var control = new HowAScriptRuns(Image(script), new Dictionary<int, int>(), leaveTheSlot: true);
+
+        Assert.DoesNotContain(0x321, control.Read(Start, [], new Bag()).FlagsSet);
     }
 
     /// <summary>

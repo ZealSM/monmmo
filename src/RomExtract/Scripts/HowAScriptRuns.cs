@@ -56,7 +56,7 @@ public sealed class HowAScriptRuns(
     IReadOnlyCollection<int>? beaten = null,
     IDictionary<int, int>? remembered = null,
     int? watch = null,
-    bool answerNought = false,
+    bool leaveTheSlot = false,
     bool rememberSlots = false)
 {
     /// <summary>
@@ -179,7 +179,7 @@ public sealed class HowAScriptRuns(
             state.Write(variable, put);
 
         ScriptRun run = ScriptRunner.Run(
-            rom, address, state, answers: answers, watch: watch, answerNought: answerNought);
+            rom, address, state, answers: answers, watch: watch, answerNought: !leaveTheSlot);
 
         var wrote = new Dictionary<int, int>(run.VariablesWritten);
         var touched = new List<VariableTouch>(run.Touched);
@@ -261,7 +261,7 @@ public sealed class HowAScriptRuns(
             state.Write(SpecialContracts.AnswerVariable, 1);
 
             run = ScriptRunner.Run(
-                rom, carryOn, state, answers: answers, watch: watch, answerNought: answerNought);
+                rom, carryOn, state, answers: answers, watch: watch, answerNought: !leaveTheSlot);
 
             foreach ((int variable, int value) in run.VariablesWritten) wrote[variable] = value;
 

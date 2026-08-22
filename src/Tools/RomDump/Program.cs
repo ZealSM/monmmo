@@ -231,7 +231,7 @@ public static class Program
             WritePlaythrough(
                 rom, options.RoutineAnswers, options.StartAt, options.Boat, options.Money, options.SayYes,
                 options.Variables, options.Surf, options.InOrder, options.Watch, options.Signs,
-                options.Moved, options.OnLoad, options.AnswerNought, options.RememberSlots);
+                options.Moved, options.OnLoad, options.LeaveTheSlot, options.RememberSlots);
         if (options.WhereFrom.Count > 0) WriteWhereFrom(rom, options.WhereFrom);
         if (options.InTheImage.Count > 0) WriteInTheImage(rom, options.InTheImage);
         if (options.ClimbFrom.Count > 0) WriteClimb(rom, options.ClimbFrom);
@@ -7423,7 +7423,7 @@ public static class Program
         bool sayYes = false, IReadOnlyDictionary<int, int>? variables = null, bool surf = false,
         bool inOrder = false, int? watch = null, bool signs = false,
         IReadOnlyList<int>? moved = null, bool onLoad = false,
-        bool answerNought = false, bool rememberSlots = false)
+        bool leaveTheSlot = false, bool rememberSlots = false)
     {
         Console.WriteLine();
         Console.WriteLine("A PLAYTHROUGH");
@@ -7474,7 +7474,7 @@ public static class Program
         // sitting in it when it moved.
         var reader = new HowAScriptRuns(
             rom, teaches, answers, variables, sayYes, beatenTrainers, remembered, watch,
-            answerNought: answerNought, rememberSlots: rememberSlots);
+            leaveTheSlot: leaveTheSlot, rememberSlots: rememberSlots);
 
         // Which scripts are doors into a scene rather than scenes. Read here because this is
         // where the cartridge is; the walk is handed the answer.
@@ -10204,14 +10204,14 @@ public static class Program
             .GroupBy(d => d.Where.Address)
             .ToDictionary(g => g.Key, g => g.First().Leads);
 
-        Attempt Run(TheFloorTable.Setting at, bool answerNought = false, bool rememberSlots = false)
+        Attempt Run(TheFloorTable.Setting at, bool leaveTheSlot = false, bool rememberSlots = false)
         {
             var beaten = new HashSet<int>();
             var remembered = new Dictionary<int, int>();
 
             var reader = new HowAScriptRuns(
                 rom, teaches, null, null, at.SayYes, beaten, remembered,
-                answerNought: answerNought, rememberSlots: rememberSlots);
+                leaveTheSlot: leaveTheSlot, rememberSlots: rememberSlots);
 
             return Autoplayer.Play(
                 world, first.Id, rules, reader.Read, null, at.Boat, 0, beaten, at.Surf,
@@ -10229,7 +10229,11 @@ public static class Program
             "      setting                                    places  nobody read it  answered NOUGHT  read a LEFTOVER"
             + "  the compare DIFFERS  A BRANCH WENT THE OTHER WAY");
 
-        var everyRun = new List<(TheFloorTable.Setting At, Attempt Played, Attempt Control)>();
+        // THREE RUNS PER SETTING, because 310 adopted the nought and thereby removed this
+        // instrument's own subject: with the slot written, there is never an unanswered one to
+        // record, and every column below would read nought forever. The PHENOMENON is measured
+        // under the pre-310 rule; the run as it stands is the control that must be nought.
+        var everyRun = new List<(TheFloorTable.Setting At, Attempt AsItStands, Attempt PreTen, Attempt PreEight)>();
 
         void Row(string label, Attempt played)
         {
@@ -10246,16 +10250,18 @@ public static class Program
 
         foreach (TheFloorTable.Setting at in TheFloorTable.Settings)
         {
-            Attempt played = Run(at);
-            Attempt control = Run(at, rememberSlots: true);
+            Attempt asItStands = Run(at);
+            Attempt preTen = Run(at, leaveTheSlot: true);
+            Attempt preEight = Run(at, leaveTheSlot: true, rememberSlots: true);
 
-            everyRun.Add((at, played, control));
+            everyRun.Add((at, asItStands, preTen, preEight));
 
-            Row(at.Command, played);
-            Row("  and with --remember-slots, which is pre-308", control);
+            Row(at.Command + "   [--leave-the-slot]", preTen);
+            Row("  and --remember-slots too, which is pre-308", preEight);
+            Row("  and the run AS IT STANDS", asItStands);
         }
 
-        Attempt widest = everyRun[^1].Played;
+        Attempt widest = everyRun[^1].PreTen;
         List<WhatTheRoutineLeft> the = [.. widest.LeftInTheSlot];
 
         int read = the.Count(c => c.Read);
@@ -10265,7 +10271,7 @@ public static class Program
         int neverBranched = the.Count(c => c.Read && !c.Branched);
 
         Console.WriteLine();
-        Console.WriteLine($"  THE WIDEST RUN — {everyRun[^1].At.Command}");
+        Console.WriteLine($"  THE WIDEST RUN, under --leave-the-slot — {everyRun[^1].At.Command}");
         Console.WriteLine();
         Console.WriteLine(
             $"    {the.Count} place(s) step over a routine. {read} of them have a comparison on the slot"
@@ -10313,27 +10319,41 @@ public static class Program
 
         // AND WHAT WRITING THE NOUGHT WOULD COST, both runs in one process (19).
         Console.WriteLine();
-        Console.WriteLine("  AND WHAT WRITING THE NOUGHT IS WORTH — the same setting twice, in one process");
+        Console.WriteLine("  AND WHAT WRITING THE NOUGHT IS WORTH — the same setting twice, in one process (ADOPTED at 310)");
         Console.WriteLine();
         Console.WriteLine(
-            "    --answer-nought is MODELLED and it is not a correction: the cartridge's routine answers");
+            "    Nought is MODELLED and it is not the cartridge's answer. What it is, is the convention this");
         Console.WriteLine(
-            "    SOMETHING and nought is not it. What it buys is that the answer stops depending on which");
+            "    project has SAID the run follows since 214 — and until 310 the code left whatever was in the");
         Console.WriteLine(
-            "    map the walk happened to be on last, which is the only thing wrong with leaving it alone.");
+            "    slot instead, so at 38 places the run took the non-zero arm because a YES-OR-NO BOX earlier");
+        Console.WriteLine(
+            "    in the same script had written a 1. The compare that reads the slot sits after a `call` whose");
+        Console.WriteLine(
+            "    block's whole content is one `special`, so what it is MEANT to read is that routine's answer:");
+        Console.WriteLine(
+            "    a fall-back is needed either way, and a convention is nought and is not what a box said.");
         Console.WriteLine();
-        Console.WriteLine("      setting                                    maps  flags  passes  party  places that read a leftover");
+        Console.WriteLine(
+            "    --leave-the-slot is the pre-310 behaviour, kept because a control the reader cannot re-run is");
+        Console.WriteLine(
+            "    not a control (241). The rows below are the run as it stands, then the same run with it.");
+        Console.WriteLine();
+        var gates = new FlagGates(world);
 
-        foreach ((TheFloorTable.Setting at, Attempt without, Attempt _) in everyRun)
+        Console.WriteLine("      setting                                    maps  flags  passes  party  places that read a leftover");
+        Console.WriteLine("      (the number beside each flag below is how many objects in the world it hides)");
+        Console.WriteLine("      the FIRST row of each pair is the run as it stands; the LEFTOVER column on it MUST be nought");
+
+        foreach ((TheFloorTable.Setting at, Attempt without, Attempt with, Attempt _) in everyRun)
         {
-            Attempt with = Run(at, answerNought: true);
 
             Console.WriteLine(
                 $"      {at.Command.PadRight(TheFloorTable.CommandColumn)}  {without.Reached.Count,4}"
                 + $"  {without.Flags.Count,5}  {without.Passes,6}  {without.Party.Count,5}"
                 + $"  {without.LeftInTheSlot.Count(c => c.ReadAndHarmless || c.ReadAndDiffers),26}");
             Console.WriteLine(
-                $"      {"  the same run with --answer-nought".PadRight(TheFloorTable.CommandColumn)}  {with.Reached.Count,4}"
+                $"      {"  the same run with --leave-the-slot".PadRight(TheFloorTable.CommandColumn)}  {with.Reached.Count,4}"
                 + $"  {with.Flags.Count,5}  {with.Passes,6}  {with.Party.Count,5}"
                 + $"  {with.LeftInTheSlot.Count(c => c.ReadAndHarmless || c.ReadAndDiffers),26}   <- MUST BE NOUGHT");
 
@@ -10346,6 +10366,22 @@ public static class Program
                 + $"  {with.Passes - without.Passes,+6}  {with.Party.Count - without.Party.Count,+5}"
                 + (gained.Count > 0 ? $"  gained {string.Join(", ", gained.Take(8))}" : string.Empty)
                 + (lost.Count > 0 ? $"  LOST {string.Join(", ", lost.Take(8))}" : string.Empty));
+
+            // WHICH FLAGS, AND WHETHER ANY OF THEM HOLDS ANYTHING (7, 134). "-8 flags" cannot be
+            // read; a named flag that gates nothing can. A flag holding nobody costs the walk
+            // nothing whatever else is true of it, and that is the difference between a lever
+            // that loses content and one that stops inventing it.
+            List<int> flagsLost = [.. without.Flags.Except(with.Flags).Order()];
+
+            if (flagsLost.Count > 0)
+            {
+                Console.WriteLine(
+                    $"      {"  which flags, and what each holds".PadRight(TheFloorTable.CommandColumn)}  "
+                    + string.Join(
+                        ", ",
+                        flagsLost.Select(f => $"0x{f:X4} ({gates.Behind(f).Count})")));
+            }
+
             Console.WriteLine();
         }
 
@@ -10396,7 +10432,7 @@ public static class Program
         Console.WriteLine();
         Console.WriteLine("      setting                                    maps  flags  passes  party  read a leftover");
 
-        foreach ((TheFloorTable.Setting at, Attempt played, Attempt control) in everyRun)
+        foreach ((TheFloorTable.Setting at, Attempt _, Attempt played, Attempt control) in everyRun)
         {
             int Leftovers(Attempt a) => a.LeftInTheSlot.Count(c => c.ReadAndHarmless || c.ReadAndDiffers);
 
@@ -22401,8 +22437,8 @@ public static class Program
         /// <summary>What a routine the run cannot answer leaves in the slot, and who reads it.</summary>
         public bool TheAnswerSlot { get; private init; }
 
-        /// <summary>With <c>--play</c>: write nought into the slot of a routine it cannot answer. MODELLED.</summary>
-        public bool AnswerNought { get; private init; }
+        /// <summary>With <c>--play</c>: LEAVE the slot of a routine it cannot answer, which is pre-310.</summary>
+        public bool LeaveTheSlot { get; private init; }
 
         /// <summary>
         /// With <c>--play</c>: carry the engine's argument slots between scripts, which is what
@@ -22662,7 +22698,7 @@ public static class Program
             var sea = false;
             var theFifthList = false;
             var theAnswerSlot = false;
-            var answerNought = false;
+            var leaveTheSlot = false;
             var rememberSlots = false;
             var onLoadLever = false;
             var operands = false;
@@ -22974,8 +23010,8 @@ public static class Program
                     case "--the-answer-slot":
                         theAnswerSlot = true;
                         break;
-                    case "--answer-nought":
-                        answerNought = true;
+                    case "--leave-the-slot":
+                        leaveTheSlot = true;
                         break;
                     case "--remember-slots":
                         rememberSlots = true;
@@ -23360,7 +23396,7 @@ public static class Program
                 Sea = sea,
                 TheFifthList = theFifthList,
                 TheAnswerSlot = theAnswerSlot,
-                AnswerNought = answerNought,
+                LeaveTheSlot = leaveTheSlot,
                 RememberSlots = rememberSlots,
                 OnLoad = onLoadLever,
                 Operands = operands,
