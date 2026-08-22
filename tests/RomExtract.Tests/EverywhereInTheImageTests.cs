@@ -32,6 +32,7 @@ public class EverywhereInTheImageTests
     private const byte Goto = 0x05;
     private const byte SetFlag = 0x29;
     private const byte ClearFlag = 0x2A;
+    private const byte CheckFlag = 0x2B;
     private const byte LoadPointer = 0x0F;
     private const byte Release = 0x6C;
     private const byte End = 0x02;
@@ -469,6 +470,46 @@ public class EverywhereInTheImageTests
 
         Assert.DoesNotContain(EverywhereInTheImage.EveryFlagMoved(rom)[Holds], s => s.Offset == 0xA03);
         Assert.Contains(EverywhereInTheImage.Moves(rom, Holds), s => s.Offset == 0xA03 && !s.ReadsAsAScript);
+    }
+
+    /// <summary>
+    /// The other half of the sweep: which flags are ASKED ABOUT (314).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>The set side cannot tell two very different things apart.</b> A flag no script sets
+    /// may be one the game's own compiled code owns — scripts still read it — or one nothing
+    /// anywhere refers to at all. Both come back identically from <c>EveryFlagMoved</c>, and
+    /// the difference is whether there is a wall behind it or nothing.
+    /// </para>
+    /// <para>
+    /// It carries the same shape test for the same reason, so this fixture holds a
+    /// <c>checkflag</c> byte that does NOT read as script — buried inside another command's
+    /// arguments — and a version that dropped the test would report a flag that is not there.
+    /// Without that byte a raw scan and this sweep agree on the image and the fixture proves
+    /// nothing.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void TheAskedSweepFindsWhatReadsAndDropsWhatOnlyLooksLikeIt()
+    {
+        var image = new byte[0x1000];
+
+        // A checkflag that reads as script: a flag, an address to go to, and an end.
+        Put(image, 0x100, CheckFlag, (byte)(Holds & 0xFF), (byte)(Holds >> 8));
+        Put(image, 0x103, End);
+
+        // And one that does not: the same byte inside a loadpointer's argument.
+        Put(image, 0x200, LoadPointer, 0x00, CheckFlag, (byte)(Keeps & 0xFF), (byte)(Keeps >> 8), 0x08);
+
+        IReadOnlyDictionary<int, IReadOnlyList<uint>> asked =
+            EverywhereInTheImage.EveryFlagAsked(new Rom(image));
+
+        Assert.Equal([0x08000000 + 0x100u], asked[Holds]);
+        Assert.False(asked.ContainsKey(Keeps));
+
+        // And a flag nothing asks about is absent rather than empty.
+        Assert.False(asked.ContainsKey(0x0BAD));
     }
 
     /// <summary>

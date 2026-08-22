@@ -543,6 +543,28 @@ public sealed record MapObject(
     public bool IsHereFor(Func<int, bool> flagIsSet) => HiddenBy == 0 || !flagIsSet(HiddenBy);
 
     /// <summary>
+    /// True when nothing in this cartridge's data can take this one off the map (314).
+    /// <para>
+    /// A person hidden by a flag that no script sets, that no pickup sets, that no field
+    /// move shifts, and that a new game does not start with, is somebody standing there for
+    /// the whole of the game. The rule is <c>WhoNeverLeaves.Ever</c>'s and it is derived —
+    /// no map number, no flag number and no person is named anywhere to produce it.
+    /// </para>
+    /// <para>
+    /// <b>This is a fact about the file and not about a walk</b>, which is why it can live
+    /// in a world record at all. Whether the door <em>behind</em> such a person is shut
+    /// needs a run, a lever setting and a grid, and 211's rule keeps numbers that move with
+    /// a lever out of here. Whether the person can ever be removed needs none of them.
+    /// </para>
+    /// <para>
+    /// The honest reading is <em>nothing in the data opens this</em>. Compiled code is a
+    /// wall this project respects: the mark says no script in the image and no routine this
+    /// project has read can clear the flag. It does not say the game cannot.
+    /// </para>
+    /// </summary>
+    public bool NeverLeaves { get; init; }
+
+    /// <summary>
     /// True when this one has something to say.
     /// <para>
     /// Carried because the server cannot know it. A ball on the ground and a person who

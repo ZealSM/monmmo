@@ -188,6 +188,7 @@ public static class EverywhereInTheImage
 {
     private const byte SetFlag = 0x29;
     private const byte ClearFlag = 0x2A;
+    private const byte CheckFlag = 0x2B;
 
     /// <summary>
     /// How many hits a pattern this long would be expected to have in this image by accident.
@@ -818,6 +819,39 @@ public static class EverywhereInTheImage
         }
 
         return found.ToDictionary(p => p.Key, p => (IReadOnlyList<FlagSite>)p.Value);
+    }
+
+    /// <summary>
+    /// Every flag ASKED ABOUT anywhere in the file, by flag, in one pass (314).
+    /// <para>
+    /// <b>The other half of <see cref="EveryFlagMoved"/>, and it separates two things that
+    /// look identical from the set side.</b> A flag nothing sets can be a flag the game's own
+    /// compiled code owns — scripts still ask about it, they just do not move it — or a flag
+    /// nothing anywhere refers to at all. The first is a wall this project can name; the
+    /// second is dead weight in the file.
+    /// </para>
+    /// <para>
+    /// Same shape test as the set sweep, and for the same reason: a raw byte scan of a
+    /// sixteen-megabyte image is mostly other people's arguments.
+    /// </para>
+    /// </summary>
+    public static IReadOnlyDictionary<int, IReadOnlyList<uint>> EveryFlagAsked(Rom rom)
+    {
+        var found = new Dictionary<int, List<uint>>();
+
+        for (int offset = 0; offset + 3 <= rom.Length; offset++)
+        {
+            if (rom.ReadU8(offset) != CheckFlag) continue;
+            if (!ScriptReader.ReadsAsAScript(rom, Rom.BaseAddress + (uint)offset)) continue;
+
+            int flag = rom.ReadU16(offset + 1);
+
+            if (!found.TryGetValue(flag, out List<uint>? sites)) found[flag] = sites = [];
+
+            sites.Add(Rom.BaseAddress + (uint)offset);
+        }
+
+        return found.ToDictionary(p => p.Key, p => (IReadOnlyList<uint>)p.Value);
     }
 
     /// <summary>

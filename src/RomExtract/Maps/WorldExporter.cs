@@ -446,6 +446,60 @@ public static class WorldExporter
                 $"by the {opening.Flags.Count} flags a new game sets");
         }
 
+        // WHO NOTHING CAN TAKE AWAY (314). 306 found a flag that hides one person in a
+        // doorway and that nothing in sixteen megabytes sets, put three ways of answering it
+        // to the operator, and got no answer for eight milestones. This is the third of them:
+        // the fact goes in the world file, derived rather than listed, so that it is a
+        // property of the cartridge and not of anybody's walk.
+        (IReadOnlyList<MapData> markedMaps, TheAlwaysThere always) =
+            WhoNeverLeaves.Mark(rom, maps, opening?.Flags ?? []);
+
+        maps = [.. markedMaps];
+
+        log?.Invoke(
+            $"  {always.Marked} of those {always.BehindAFlag} are behind a flag NOTHING in the " +
+            "data sets — no script, no pickup, no field move, and not a new game");
+
+        // The four exclusions beside the mark, because a count of people nothing removes is
+        // unreadable without the count of people something does (25, 79, 313). They overlap,
+        // so they are four answers rather than four buckets and they do not sum.
+        log?.Invoke(
+            $"    against {always.MovedByAScript} whose flag a script moves, " +
+            $"{always.OnAtTheStart} hidden from the first frame, " +
+            $"{always.CanBeTakenAway} picked up and {always.AnObstacle} shifted by a field move " +
+            "(overlapping, so these do not sum)");
+
+        if (always.Flags.Count > 0)
+        {
+            log?.Invoke(
+                $"    {always.Flags.Count} flags: " +
+                string.Join(", ", always.Flags.Select(f => $"0x{f:X4}")));
+
+            // And whether anything still READS them. A flag nothing sets that scripts ask
+            // about would be a wall with the game's own code behind it; one nothing asks about
+            // either is dead weight in the file, and the set sweep cannot tell them apart.
+            //
+            // AGAINST THE FLOOR, AND ON THIS CARTRIDGE THE FLOOR WINS. The forward count reads
+            // BELOW what the same question gets from a file reversed end for end, so the hits
+            // are noise and the honest reading is that nothing asks about any of them either.
+            log?.Invoke(
+                $"    {always.Asked.Count} of those {always.Flags.Count} are asked about by " +
+                $"something shaped like a script — against {always.AskedInTheReversal} of the same " +
+                $"{always.Flags.Count} in the image REVERSED, which holds no scripts at all" +
+                (always.Asked.Count > always.AskedInTheReversal
+                    ? string.Empty
+                    : ", so this is at or under the floor and none of them is read"));
+
+            foreach (AFlagStillRead read in always.Asked)
+            {
+                log?.Invoke(
+                    $"      0x{read.Flag:X4} at " +
+                    string.Join(", ", read.Sites.Select(s => $"0x{s:X8}")));
+            }
+        }
+
+        foreach (string line in always.Where) log?.Invoke($"      {line}");
+
         // The ferry's ticket, read off the one dock that checks for one.
         var passes = new List<FerryPass>();
 
