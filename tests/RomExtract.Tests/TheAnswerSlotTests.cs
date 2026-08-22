@@ -128,6 +128,21 @@ public sealed class TheAnswerSlotTests
     private static byte[] At(uint address) =>
         [(byte)address, (byte)(address >> 8), (byte)(address >> 16), (byte)(address >> 24)];
 
+    /// <summary>
+    /// Something leaves 5 in the slot, a routine this cannot answer follows, and the compare
+    /// after it is against NOUGHT — so nought takes the branch and anything else falls through
+    /// into the <c>setflag</c>. The three cases this file cares about all read differently.
+    /// </summary>
+    private static byte[] TakesTheNoughtArm =>
+    [
+        0x16, .. Word(0x800D), .. Word(5),                 // a box, or anything, leaves 5
+        0x26, .. Word(0x800D), .. Word(Unanswerable),      // and a routine this cannot answer
+        0x21, .. Word(0x800D), .. Word(0),                 // compare 0x800D, 0
+        0x06, 1, .. At(Elsewhere),                         // goto if EQUAL — the nought arm
+        0x29, .. Word(0x321),                              // reached only when it is NOT nought
+        0x02,
+    ];
+
     /// <summary>Where the conditional jumps: one <c>end</c>, well clear of the script.</summary>
     private const uint Elsewhere = Start + 0x40;
 
@@ -275,27 +290,25 @@ public sealed class TheAnswerSlotTests
     [Fact]
     public void TheAdoptedDefaultWritesNoughtAndThereIsNoLeftoverToRead()
     {
-        byte[] script =
-        [
-            0x16, .. Word(0x800D), .. Word(5),                 // a box, or anything, leaves 5
-            0x26, .. Word(0x800D), .. Word(Unanswerable),      // and a routine this cannot answer
-            0x21, .. Word(0x800D), .. Word(5),                 // compare 0x800D, 5
-            0x06, 1, .. At(Elsewhere),                         // goto if EQUAL
-            0x29, .. Word(0x321),                              // setflag — only on the fall-through
-            0x02,
-        ];
+        // COMPARED AGAINST NOUGHT, not against the leftover.
+        //
+        // The first version of this compared against 5 and a break writing ONE instead of nought
+        // came back GREEN: 1 and 0 are both Less than 5, so every row of the fixture read the
+        // same for either. 13's costume, in a fixture written the same hour as the rule. Against
+        // NOUGHT the three cases separate — nought is Equal and takes the branch; 1 and the
+        // leftover 5 are Greater and fall through.
+        ScriptRun left = ScriptRunner.Run(rom: Image(TakesTheNoughtArm), address: Start);
+        ScriptRun nought = ScriptRunner.Run(
+            rom: Image(TakesTheNoughtArm), address: Start, answerNought: true);
 
-        ScriptRun left = ScriptRunner.Run(rom: Image(script), address: Start);
-        ScriptRun nought = ScriptRunner.Run(rom: Image(script), address: Start, answerNought: true);
-
-        // Pre-310: the 5 is still there, the compare is EQUAL, and the branch is taken.
+        // Pre-310: the 5 is still there, the compare is Greater, and the run falls through.
         Assert.Single(left.LeftInTheSlot);
-        Assert.DoesNotContain(0x321, left.FlagsSet);
+        Assert.Contains(0x321, left.FlagsSet);
 
         // Adopted: nought is written, so there is no unanswered slot to record at all — and the
-        // compare is no longer equal, so the run falls through and takes the nought arm.
+        // compare is EQUAL, so the run takes the nought arm and never reaches the setflag.
         Assert.Empty(nought.LeftInTheSlot);
-        Assert.Contains(0x321, nought.FlagsSet);
+        Assert.DoesNotContain(0x321, nought.FlagsSet);
     }
 
     // ----------------------------------------- why there was anything in the slot at all
@@ -406,23 +419,14 @@ public sealed class TheAnswerSlotTests
     [Fact]
     public void AndTheReaderPassesItByDefault()
     {
-        byte[] script =
-        [
-            0x16, .. Word(0x800D), .. Word(5),
-            0x26, .. Word(0x800D), .. Word(Unanswerable),
-            0x21, .. Word(0x800D), .. Word(5),
-            0x06, 1, .. At(Elsewhere),
-            0x29, .. Word(0x321),
-            0x02,
-        ];
+        var reader = new HowAScriptRuns(Image(TakesTheNoughtArm), new Dictionary<int, int>());
 
-        var reader = new HowAScriptRuns(Image(script), new Dictionary<int, int>());
+        Assert.DoesNotContain(0x321, reader.Read(Start, [], new Bag()).FlagsSet);
 
-        Assert.Contains(0x321, reader.Read(Start, [], new Bag()).FlagsSet);
+        var control = new HowAScriptRuns(
+            Image(TakesTheNoughtArm), new Dictionary<int, int>(), leaveTheSlot: true);
 
-        var control = new HowAScriptRuns(Image(script), new Dictionary<int, int>(), leaveTheSlot: true);
-
-        Assert.DoesNotContain(0x321, control.Read(Start, [], new Bag()).FlagsSet);
+        Assert.Contains(0x321, control.Read(Start, [], new Bag()).FlagsSet);
     }
 
     /// <summary>
