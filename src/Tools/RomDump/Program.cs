@@ -10274,11 +10274,15 @@ public static class Program
         Console.WriteLine(
             $"      by shape alone:      {candidates.Count,6} in the image, {reversed.Count,6} in the reversal");
 
-        List<uint> named = [.. candidates.Where(a => TheMoveTutors.PointedAtBy(rom, a) == 1)];
+        List<uint> anyWord = [.. candidates.Where(a => TheMoveTutors.PointedAtBy(rom, a).Words == 1)];
+        List<uint> named = [.. candidates.Where(a => TheMoveTutors.PointedAtBy(rom, a).Loaded == 1)];
 
         Console.WriteLine(
-            $"      and named by ONE word: {named.Count,4} in the image"
-            + "   <- the condition that does the work, printed apart from the one that does not (79)");
+            $"      named by ONE aligned word: {anyWord.Count,3} in the image"
+            + "   <- what 311 quoted, and it is not enough: four bytes in a graphics region can");
+        Console.WriteLine(
+            $"      ...that an INSTRUCTION loads: {named.Count,3} in the image"
+            + "   <- 246's test, and the one that means anything (312). Both printed, permanently (25)");
 
         if (named.Count == 0)
         {
@@ -10329,7 +10333,7 @@ public static class Program
         Console.WriteLine(
             $"    0x{at:X8} is named by {names} of {tutors.Count}"
             + (scored.Count > 1 ? $" against the runner-up\'s {runnerUp}" : string.Empty)
-            + " — and it is pointed at by exactly one aligned word in sixteen megabytes.");
+            + " — and it is the one candidate an INSTRUCTION loads the address of.");
         Console.WriteLine();
         Console.WriteLine("      index  move  name              the tutor, and whether its own text says the name");
 

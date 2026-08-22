@@ -189,15 +189,44 @@ public static class TheMoveTutors
         return found;
     }
 
-    /// <summary>How many aligned words in the image hold this address.</summary>
-    public static int PointedAtBy(Rom rom, uint address)
+    /// <summary>
+    /// Aligned words in the image holding this address, and how many of those an INSTRUCTION
+    /// actually loads.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>The second number is the one that means anything, and 311 quoted the first</b> (312).
+    /// "Pointed at by exactly one aligned word in sixteen megabytes" sounds decisive and is not:
+    /// four bytes anywhere in a graphics or compression region can equal an address by accident,
+    /// and one did — <c>0x0823E140</c>'s single word sits at <c>0x245BBC</c> among data and is
+    /// loaded by nothing.
+    /// </para>
+    /// <para>
+    /// The right test was already here. 246 built it for a different question: a THUMB
+    /// <c>ldr rX, [pc, #imm]</c> whose arithmetic lands on exactly this word. Five fixed bits
+    /// recur constantly; five fixed bits that reach this particular word do not, and only 2.4% of
+    /// aligned words have one.
+    /// </para>
+    /// <para>
+    /// Both counts are returned and both are printed, permanently, because the weak one is the
+    /// argument for the strong one (25).
+    /// </para>
+    /// </remarks>
+    public static (int Words, int Loaded) PointedAtBy(Rom rom, uint address)
     {
-        var count = 0;
+        var words = 0;
+        var loaded = 0;
 
         for (int at = 0; at + 4 <= rom.Length; at += 4)
-            if (rom.ReadU32(at) == address) count++;
+        {
+            if (rom.ReadU32(at) != address) continue;
 
-        return count;
+            words++;
+
+            if (EverywhereInTheImage.LoadedFrom(rom, at) is not null) loaded++;
+        }
+
+        return (words, loaded);
     }
 
     private const byte SetFlag = 0x29;

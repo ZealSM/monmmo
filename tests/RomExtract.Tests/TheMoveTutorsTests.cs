@@ -180,22 +180,43 @@ public sealed class TheMoveTutorsTests
         Assert.DoesNotContain(Rom.BaseAddress + 0x300, TheMoveTutors.Hunt(outOfRange, 3, 355));
     }
 
-    /// <summary>And how many aligned words in the image hold an address.</summary>
+    /// <summary>
+    /// Aligned words holding an address, and how many of those an INSTRUCTION loads.
+    /// </summary>
     /// <remarks>
-    /// This is the condition that takes the hunt from 81 places to 2, so it does the work of the
-    /// whole reading and is worth a test of its own. Aligned, because an unaligned match is a
-    /// coincidence in a file this size and not something a routine can load.
+    /// <para>
+    /// The second number is the one that means anything and 311 quoted the first (312). On the
+    /// real image the shape alone passes 81 places, "one aligned word" takes it to 2, and "a word
+    /// an instruction loads" takes it to 1 — the two survivors of the weak test differ by exactly
+    /// this, and the one it drops sits among compressed data with nothing loading it.
+    /// </para>
+    /// <para>
+    /// Aligned, because an unaligned match is a coincidence in a file this size and not something
+    /// a routine can load.
+    /// </para>
     /// </remarks>
     [Fact]
-    public void APointerIsCountedOnlyWhereItIsAligned()
+    public void APointerIsCountedOnlyWhereItIsAlignedAndOnlyLoadedWhereAnInstructionReachesIt()
     {
         uint target = Rom.BaseAddress + 0x300;
 
-        Assert.Equal(1, TheMoveTutors.PointedAtBy(Image((Rom.BaseAddress + 0x400, At(target))), target));
-        Assert.Equal(2, TheMoveTutors.PointedAtBy(
-            Image((Rom.BaseAddress + 0x400, At(target)), (Rom.BaseAddress + 0x410, At(target))), target));
+        // A bare word: it is there, and nothing loads it.
+        Assert.Equal((1, 0), TheMoveTutors.PointedAtBy(Image((Rom.BaseAddress + 0x400, At(target))), target));
+
+        Assert.Equal(
+            (2, 0),
+            TheMoveTutors.PointedAtBy(
+                Image((Rom.BaseAddress + 0x400, At(target)), (Rom.BaseAddress + 0x410, At(target))), target));
 
         // The same four bytes one off an aligned word: nothing can load it there.
-        Assert.Equal(0, TheMoveTutors.PointedAtBy(Image((Rom.BaseAddress + 0x401, At(target))), target));
+        Assert.Equal((0, 0), TheMoveTutors.PointedAtBy(Image((Rom.BaseAddress + 0x401, At(target))), target));
+
+        // AND ONE AN INSTRUCTION REACHES. `ldr r0, [pc, #0]` at 0x3FC: align4(0x3FC + 4) is
+        // 0x400 and the offset is nought, so it lands on exactly the word at 0x400.
+        Assert.Equal(
+            (1, 1),
+            TheMoveTutors.PointedAtBy(
+                Image((Rom.BaseAddress + 0x3FC, [0x00, 0x48]), (Rom.BaseAddress + 0x400, At(target))),
+                target));
     }
 }
