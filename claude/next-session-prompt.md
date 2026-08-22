@@ -6,7 +6,7 @@
 I'm building MonMMO, a from-scratch MMO whose data is extracted from my own Pokémon FireRed
 cartridge. C# / .NET 8, xUnit, Raylib-cs client, SQLite server. Repo is at
 `~/OneDrive/Desktop/pokemmo`, branch `main`, everything merged. Base is the tip of
-`claude-312`, **3563 tests green** — re-read at 297, where the old line still said `claude-314` and
+`claude-313`, **3564 tests green** — re-read at 297, where the old line still said `claude-314` and
 3274 (trap 14, in the sentence that tells you where you are standing).
 
 Standing rules — do not break these:
@@ -718,6 +718,16 @@ Traps worth carrying:
     what names their own blocks is a literal in code, which the climb had said per site since 191.
     **Before believing a proximity test, ask what it would find if the thing were merely nearby.**
 
+152. **"ALL N OF THESE LAND ON A POINTER" IS FREE INSIDE A POINTER TABLE** (313). 302's hunt for
+    what `0xA2`'s index selects from found 462 bases and called the answer NOT FOUND for want of a
+    way to choose. 312's instruction test cuts it to **17** — twenty-seven-fold — and every one of
+    the 17 sits in a span that is **78-86% ROM addresses before the question is asked**, in ONE
+    region entered at different offsets. None passed by being a table; they passed by being inside
+    one. For scale, code is 8% and a middling data region is 52%. **The number that means something
+    is not how many targets are addresses, it is how far above the neighbourhood that is** —
+    `TwoColumnsOfOneKind.HowDense` prints it beside every candidate now. 302's answer stands and
+    the reason is measured instead of admitted.
+
 151. **A WORD THAT EQUALS AN ADDRESS IS NOT A POINTER TO IT** (312). 311 quoted *"pointed at by
     exactly one aligned word in sixteen megabytes"* as the condition that took 81 candidates to 2.
     Four bytes anywhere in a graphics or compression region can equal an address by accident, and
@@ -1412,7 +1422,7 @@ Traps worth carrying:
 
 ## Where things are
 
-Read `claude/milestone-312-the-pointer-that-was-not-one.md` first, then `311`, then `310`, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
+Read `claude/milestone-313-the-condition-that-was-free.md` first, then `312`, then `311`, then `310`, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
 `303`, then `302`, then `301`, then `300`, then `299`, then `298`, then `297`, then `296`, then `295`, then `294`,
 then `293`, then `292`, then `291`, then `290`, then `289`, then `288`, then `287`, then `286`,
 then `285`, then `284`, then `283`, then `282`, then `281`, then `280`, then `279`, then `278`, then `277`, then `276`, then `275`, then `274`, then `273`, `272`, `271`, `270`, `269`, `268`, `267`, `266`, `265`, `264`, `263`, `262`, `261`, `260`, `259`, `258`, `257`,
@@ -1679,6 +1689,11 @@ each of those 54 HIDES, counted off the object records, which is the half that c
 and on, which is 19's rule — 239 priced signs across two builds and nobody without that build could
 have checked it. **And the negative underneath**, which is the finding: 54 flags and 74 objects are
 worth **nine maps**, all TRAINER TOWER, behind ONE person.
+
+`--the-species` gained 313's two columns: of 302's 462 bases, **54 are equalled by an aligned word
+and 17 are LOADED by an instruction** (312's test), and all 17 sit in spans that are **78-86% ROM
+addresses to begin with** — one region, not 17 candidates, and the condition was free there. NOT
+FOUND stands, now for a measured reason.
 
 `--the-species` ends with 302: **`0xA2` is a species, a species, an INDEX and a nought-or-one** —
 533 byte positions on 30 maps, 239 distinct pairs, 24 of them the same species twice. That the two
