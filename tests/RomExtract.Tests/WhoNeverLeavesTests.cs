@@ -176,6 +176,44 @@ public sealed class WhoNeverLeavesTests
     }
 
     /// <summary>
+    /// The floor under "something still asks about it" comes from the REVERSED image.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>This is the number that overturned the finding, so it is the number most worth
+    /// guarding.</b> On the cartridge one of the fifteen flags is asked about by something
+    /// shaped like a script and the reversal answers three — under the floor, so the honest
+    /// reading is that nothing asks about any of them. A floor computed from the forward image
+    /// would have come back equal to the finding every time, which is a decoration sitting
+    /// where the error bar is meant to be (205).
+    /// </para>
+    /// <para>
+    /// The image here holds a <c>checkflag</c> that reads as script forwards and, reversed,
+    /// is neither at that offset nor anywhere else. So the two numbers must differ, and a
+    /// version that swept the same bytes twice cannot make them.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void TheFloorUnderTheAskedCountIsMeasuredOnTheImageTurnedRound()
+    {
+        var image = new byte[0x1000];
+
+        image[0x100] = 0x2B;      // checkflag 0x0042
+        image[0x101] = 0x42;
+        image[0x102] = 0x00;
+        image[0x103] = 0x02;      // end
+
+        var maps = new List<MapData> { Map("2.0", Person(1, 0x42)) };
+
+        (_, TheAlwaysThere reading) = WhoNeverLeaves.Mark(new Rom(image), maps, []);
+
+        AFlagStillRead read = Assert.Single(reading.Asked);
+
+        Assert.Equal(0x42, read.Flag);
+        Assert.Equal(0, reading.AskedInTheReversal);
+    }
+
+    /// <summary>
     /// The mark survives a round trip through the world file.
     /// </summary>
     /// <remarks>
