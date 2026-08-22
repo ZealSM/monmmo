@@ -6,7 +6,7 @@
 I'm building MonMMO, a from-scratch MMO whose data is extracted from my own Pokémon FireRed
 cartridge. C# / .NET 8, xUnit, Raylib-cs client, SQLite server. Repo is at
 `~/OneDrive/Desktop/pokemmo`, branch `main`, everything merged. Base is the tip of
-`claude-310`, **3557 tests green** — re-read at 297, where the old line still said `claude-314` and
+`claude-311`, **3563 tests green** — re-read at 297, where the old line still said `claude-314` and
 3274 (trap 14, in the sentence that tells you where you are standing).
 
 Standing rules — do not break these:
@@ -718,6 +718,29 @@ Traps worth carrying:
     what names their own blocks is a literal in code, which the climb had said per site since 191.
     **Before believing a proximity test, ask what it would find if the thing were merely nearby.**
 
+149. **FOUND BY SHAPE, CONFIRMED BY TEXT** (311). The strongest form of 248's rule this project
+    has had. The tutor table was hunted with no move name in the hunt — fifteen halfwords, all
+    valid move ids, ended by a nought, named by exactly one aligned word — and then scored by
+    what the tutors SAY: **14 of 15 against the runner-up candidate's 0**. Two structures neither
+    of which could have been tuned to agree with the other. **And the fifteenth is a PREDICTION**:
+    `3.1`'s text says only *"I learned how to eat dreams"*, and the table's index 10 is 138, which
+    a move table located for a different question calls DREAM EATER. A reading that predicts
+    something its evidence withheld is worth more than one that explains everything it saw.
+
+148. **GROUP, DO NOT FILTER** (311). The first version of the tutor hunt asked for "a script that
+    sets `0x8005` and then a flag" and found **55** — every gift, every trigger pair, every
+    scene. Tightening the filter until fifteen came out would have been choosing the answer (79).
+    What is honest is to collect the ROUTINE each script hands the number to and group by it: one
+    group has fifteen members, the others have one or two, and fifteen is then an output. **When a
+    filter needs tuning to give the number you want, add a column and sort by it instead.**
+
+147. **A CONTIGUOUS BAND OF FLAGS THAT GATES NOTHING IS A TABLE** (311). `0x02C0`-`0x02CE` held no
+    object, opened no door and cost nothing at any lever setting, which is exactly why 310 could
+    adopt a change that stopped setting them without paying anything. That made them look like
+    nothing. They are one per move tutor — a per-person bookkeeping band, the first this project
+    has named. **A flag that gates nothing is not a flag that means nothing**, and the fact that
+    removing it is free is not evidence that it is empty.
+
 146. **TWO COPIES OF ONE READING AND ONLY ONE MAINTAINED** (310). 224's rule — *a shared wrong
     list is worse than five private ones* — pointed at this prompt. The `--namespaces` paragraph
     in the instruments section had **five** numbers stale: 236 variables (238), a floor of 1.71
@@ -1372,7 +1395,7 @@ Traps worth carrying:
 
 ## Where things are
 
-Read `claude/milestone-310-two-copies-of-one-reading.md` first, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
+Read `claude/milestone-311-fifteen-people-and-a-table.md` first, then `310`, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
 `303`, then `302`, then `301`, then `300`, then `299`, then `298`, then `297`, then `296`, then `295`, then `294`,
 then `293`, then `292`, then `291`, then `290`, then `289`, then `288`, then `287`, then `286`,
 then `285`, then `284`, then `283`, then `282`, then `281`, then `280`, then `279`, then `278`, then `277`, then `276`, then `275`, then `274`, then `273`, `272`, `271`, `270`, `269`, `268`, `267`, `266`, `265`, `264`, `263`, `262`, `261`, `260`, `259`, `258`, `257`,
@@ -1594,9 +1617,21 @@ dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-ruler
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-species
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-fifth-list
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-answer-slot
+dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-tutors
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --leave-the-slot
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --boat --surf --in-order --on-load
 ```
+
+`--the-tutors` is 311: the flag band 310 left unread, and it is the MOVE TUTORS. Found by SHAPE —
+every script that puts a number in `0x8005` and hands it straight to a routine — and then GROUPED
+by that routine rather than filtered, so the one group of fifteen is a finding. Indices 0..14 with
+no holes; flags `0x02C0`..`0x02CE` contiguous; **two dense numberings over the same fifteen people
+and they are not the same one** (`0x02C4` is index 0, `0x02C0` is index 4). The move is in NO
+script. **The table it indexes is at `0x08459B60`** — fifteen halfwords ended by a nought, pointed
+at by exactly ONE aligned word in the image, found without reading a word of dialogue, and
+confirmed by dialogue at **14 of 15 against the runner-up candidate's 0**. The fifteenth is the
+PREDICTION: `3.1`'s text says only *"I learned how to eat dreams"* and index 10 is 138, DREAM
+EATER. The floor settles at THREE entries — one place in the image holds the first three.
 
 `--the-answer-slot` is 308, and it is the denominator 307 owed. A leftover can only be mistaken
 for an answer at a comparison that follows an UNANSWERED CALL with nothing in between, so it counts
