@@ -6,7 +6,7 @@
 I'm building MonMMO, a from-scratch MMO whose data is extracted from my own Pokémon FireRed
 cartridge. C# / .NET 8, xUnit, Raylib-cs client, SQLite server. Repo is at
 `~/OneDrive/Desktop/pokemmo`, branch `main`, everything merged. Base is the tip of
-`claude-309`, **3555 tests green** — re-read at 297, where the old line still said `claude-314` and
+`claude-310`, **3557 tests green** — re-read at 297, where the old line still said `claude-314` and
 3274 (trap 14, in the sentence that tells you where you are standing).
 
 Standing rules — do not break these:
@@ -718,6 +718,30 @@ Traps worth carrying:
     what names their own blocks is a literal in code, which the climb had said per site since 191.
     **Before believing a proximity test, ask what it would find if the thing were merely nearby.**
 
+146. **TWO COPIES OF ONE READING AND ONLY ONE MAINTAINED** (310). 224's rule — *a shared wrong
+    list is worse than five private ones* — pointed at this prompt. The `--namespaces` paragraph
+    in the instruments section had **five** numbers stale: 236 variables (238), a floor of 1.71
+    (1.73), a whole-image triple of 2117/12659/1182 (2117/14308/1333), and *19 of the 90 variables
+    are never looked at, 10 past the boundary and 9 nowhere* (**7 of 115, 5 and 2**). Every one of
+    the five was already CORRECT in the block a few hundred lines below, and had been since 264.
+    **Do not restate a block line in the instruments section; point at it** — a number written
+    twice in one file is a number that will be corrected once.
+
+145. **THE CORRECTION CAN REMOVE THE INSTRUMENT'S OWN SUBJECT** (310). Adopting the nought means
+    there is never an unanswered slot to record, so `--the-answer-slot`'s whole table went to
+    nought at every setting — the reading it exists to produce, invisible. The fix is that the
+    PHENOMENON is measured under the control (`--leave-the-slot`) and the run as it stands is the
+    row that MUST be nought. **When you adopt a fix, check the instrument that found it can still
+    say what it found.**
+
+144. **THE FIXTURE COMPARED AGAINST THE LEFTOVER, SO THE TWO ANSWERS READ THE SAME** (310). A
+    break writing ONE instead of nought came back GREEN against a fixture whose compare was
+    `compare 0x800D, 5`: both 1 and 0 are Less than 5, so every row read identically. 13's costume
+    in a fixture written the same hour as the rule it guards. Compared against NOUGHT the three
+    cases separate — nought is Equal and branches, 1 and the leftover fall through — and the same
+    break then kills two. **A fixture for "what value goes in" has to compare against a value that
+    tells those values apart**, which is not the one the old behaviour left there.
+
 143. **A SUPERLATIVE IS NOT A SETTING** (309). Every line in this block saying *the widest run*
     moved at 307 and **nothing was wrong with any of them**: the widest is whichever row is last,
     and 307 added one. `216 of the 322 gating flags, 106 never opened` is still exactly right at
@@ -1348,7 +1372,7 @@ Traps worth carrying:
 
 ## Where things are
 
-Read `claude/milestone-309-a-superlative-is-not-a-setting.md` first, then `308`, then `307`, then `306`, then `305`, then `304`, then
+Read `claude/milestone-310-two-copies-of-one-reading.md` first, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
 `303`, then `302`, then `301`, then `300`, then `299`, then `298`, then `297`, then `296`, then `295`, then `294`,
 then `293`, then `292`, then `291`, then `290`, then `289`, then `288`, then `287`, then `286`,
 then `285`, then `284`, then `283`, then `282`, then `281`, then `280`, then `279`, then `278`, then `277`, then `276`, then `275`, then `274`, then `273`, `272`, `271`, `270`, `269`, `268`, `267`, `266`, `265`, `264`, `263`, `262`, `261`, `260`, `259`, `258`, `257`,
@@ -1358,7 +1382,7 @@ then `285`, then `284`, then `283`, then `282`, then `281`, then `280`, then `27
 `238`, `237`,
 `236`, `235`, `234`, `233`, `232`, `231`, `230`, `229`, `228`, `227`, `226`, `225`, `224`, `223`, `222`, `221`, `220`, `219`, `218`, `217`, `216`, `215`, `214`, `213`, `212`, `211`, `210`, `209`, `208`, `207`, `206`, `205`, `204`, `203`, `202`, `201`, `200`, `199`, `198`, `197`, `196`, `195`, `194`, `193`, `192`, `191`, `190`, `189`,
 `188`, `187`, `186`, `185`, `184`, `183`, `182`, `181`, `180`, `179`, `178`, `177`, `176`.
-**Fifty-nine faults closed and every one was in this project, not on the cartridge.** A walk that
+**Sixty faults closed and every one was in this project, not on the cartridge.** A walk that
 stopped at a conditional call; one byte with no width; three scans that rolled their own "every
 script" list; a list ranked by a count instead of by what it costs; a party that could not gain
 a level; a roadmap line that called a fix a cost; a continuation that carried flags and not
@@ -1501,7 +1525,12 @@ places, 214.2 each against the remembered band's 11.1) was on the REMEMBERED sid
 to exclude scratch. A `copyvar 0x800D, 0x8004` on `41.0` was still in the slot when `12.4` ran two
 maps later, and that is what an unanswerable routine's compare read. Adopted: 0 maps at every
 setting, the two flags it stops setting hold nothing and gate nothing, and the one it starts
-setting gates nineteen objects and stops flickering.
+setting gates nineteen objects and stops flickering; and at 310 **the run taking the non-zero arm
+because a different question had been answered** — an unanswerable routine left the slot alone, so
+a compare meant to read that routine's answer read whatever a yes-or-no box earlier in the same
+script had written, at 38 places. The called block's whole content is one `special` (`0x0171` and
+`0x018D` are 28 of the 38), so a fall-back is needed either way and 214's convention is nought.
+Cost: 0 maps and 0 gating flags at every setting.
 
 `246` is the read that is not a command, and the literal-pool test for whether compiled code holds
 a number — both live inside `--namespaces`, which is now the fullest single instrument in the
@@ -1565,6 +1594,7 @@ dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-ruler
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-species
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-fifth-list
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-answer-slot
+dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --leave-the-slot
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --boat --surf --in-order --on-load
 ```
 
@@ -1863,14 +1893,19 @@ number space, so each command now says when the number it was handed is used in 
 `--moved` prints every set and clear with its script, its map, its pass and which of the four
 lists ran it.
 
-`--namespaces` asks the map scan — 238 flags, 236 variables — and prints **the shape of each
+`--namespaces` asks the map scan — **238 flags, 238 variables** — and prints **the shape of each
 namespace and the spread PER OPERAND**, which is what caught 244: one operand held every
 out-of-band number. It gives the raw shared count (27) and the corrected one (**1**, `0x4001`,
-against the same floor of 1.71), the written-ness percentages the correction rests on, and the
-whole-image version (2117 / 12659 / 1182) as the noise it is. **It also answers 184's other
-half where the question HAS an answer** (245, corrected at 246): **19** of the 90 variables the
-map scan writes are never looked at, 10 past the code boundary and **9 looked at nowhere in
-sixteen megabytes**. It was 26 / 14 / 12 until 246 counted the read that is NOT a command — an
+against the same floor of **1.73**), the written-ness percentages the correction rests on, and the
+whole-image version (**2117 / 14308 / 1333**) as the noise it is. **It also answers 184's other
+half where the question HAS an answer** (245, corrected at 246): **7** of the **115** variables the
+map scan writes are never looked at, **5** past the code boundary and **2 looked at nowhere in
+sixteen megabytes**.
+**EVERY ONE OF THOSE FIVE NUMBERS WAS STALE UNTIL 310** — 236, 1.71, 12659/1182, 19/90 and 10/9 —
+and every one of them was already CORRECT in the block below, which is 224's rule pointed at this
+prompt: two copies of one reading, and only one of them maintained. Do not restate a block line
+here; point at it.
+It was 26 / 14 / 12 until 246 counted the read that is NOT a command — an
 arrival condition is two halfwords in a map's header naming a variable, and seven of the 26 were
 being read by one, `0x407C` on NINETEEN maps. The seven that moved are named in the output with
 what reads each, and the commands-only list is printed beside the corrected one so the size of
@@ -2092,13 +2127,19 @@ delta to it.
 ```
 --play                                      183 / 160 in 6, party of 6 at 52, 11 of 104 handed twice
                                             crossing water: nobody ever knew move 57 — a wall
---play --say-yes                            243 / 232 in 6, party of 4 at 67, 10 of 155 handed twice
---play --say-yes --in-order                 243 / 234 in 6, party of FIVE at 67, 0 of 152 handed twice
---play --say-yes --boat                     388 / 298 in 7, party of 4 at 78, 11 of 207 handed twice
---play --say-yes --boat --in-order          388 / 299 in 7, party of FIVE at 78, 0 of 203 handed twice
---play --say-yes --boat --surf --in-order   388 / 300 in 5, party of five at 75, 0 of 203 handed twice
+--play --say-yes                            243 / 227 in 6, party of 4 at 67, 10 of 155 handed twice
+--play --say-yes --in-order                 243 / 229 in 6, party of FIVE at 67, 0 of 152 handed twice
+--play --say-yes --boat                     388 / 290 in 7, party of 4 at 78, 11 of 207 handed twice
+--play --say-yes --boat --in-order          388 / 291 in 7, party of FIVE at 78, 0 of 203 handed twice
+--play --say-yes --boat --surf --in-order   388 / 292 in 5, party of five at 75, 0 of 203 handed twice
 --play --say-yes --boat --surf --in-order --on-load
-                                           397 / 313 in 7, party of SIX at 75, 1 of 204 handed twice
+                                           397 / 305 in 7, party of SIX at 75, 1 of 204 handed twice
+                                            <- THE FLAG COUNTS MOVED AGAIN AT 310 and the map
+                                               counts did not, for the second milestone running:
+                                               an unanswerable routine leaves NOUGHT now, which
+                                               is what 214 always said it did. --leave-the-slot
+                                               is the old behaviour. NOT ONE GATING FLAG MOVED —
+                                               `--the-floor`'s gates-set column is identical
                                             <- EVERY FLAG COUNT MOVED AT 308 and the map counts did
                                                not: the engine's argument slots stopped surviving a
                                                script. --remember-slots is the old behaviour
@@ -2243,12 +2284,16 @@ THE RUN-DEPENDENT LINES ARE PRINTED BY `--the-floor` NOW (309), one row per sett
 
       setting                                 gates set  never set  boundary  reach  obstacle  picked up  past it  took back  ever on  took back  places  routines  signs   at   on
       --play                                        123        199        35     37        15        100        8          4      164          4     472        44    315  214   79
-      --play --say-yes                              163        159        35     36        15         60        7          6      238          6     755        66    394  287  106
-      --play --say-yes --in-order                   165        157        35     36        15         60        7          4      238          4     538        53    394  287  106
-      --play --say-yes --boat                       214        108        35     29        15         13        8          8      308         10    1223        92    470  333  140
-      --play --say-yes --boat --in-order            215        107        35     30        15         13        7          7      308          9     871        79    469  333  140
-      --play --say-yes --boat --surf --in-order     216        106        35     30        15         13        8          5      306          6     873        80    469  333  140
-      ... --on-load                                 219        103        35     25        15         13        9          6      320          7     895        86    469  333  140
+      --play --say-yes                              163        159        35     36        15         60        7          6      233          6     765        75    394  287  106
+      --play --say-yes --in-order                   165        157        35     36        15         60        7          4      233          4     548        62    394  287  106
+      --play --say-yes --boat                       214        108        35     29        15         13        8          8      300         10    1232       101    470  333  140
+      --play --say-yes --boat --in-order            215        107        35     30        15         13        7          7      300          9     880        88    469  333  140
+      --play --say-yes --boat --surf --in-order     216        106        35     30        15         13        8          5      298          6     882        89    469  333  140
+      ... --on-load                                 219        103        35     25        15         13        9          6      312          7     904        95    469  333  140
+
+  **310 MOVED THE LAST FOUR COLUMNS AND NONE OF THE FIRST EIGHT.** Every gates-set, never-set and
+  bucket number is identical to 309's; what moved is ever-on, places and routines. So adopting the
+  nought cost NO gating flag at any setting — the only flags it stops setting hold nothing.
 
   **BOUNDARY reads 35 and OBSTACLE reads 15 at ALL SEVEN** — both are about the FILE and 211 says
   they must not move with a lever. They did not, across a lever added at 307 and a rule changed at
@@ -2297,11 +2342,14 @@ BUT THE RUN ALSO TAKES FLAGS BACK: 164 ever on at the floor against the 160 it s
     number this project could produce. The 30 are 26 on 1.96 MT. EMBER, 3 on 1.62 and 1 on 1.102
     — **285 took the DOTTED HOLE's five and RUIN VALLEY's one out of this bucket** (it was 55 and
     36 for two milestones, and the "puzzle nothing solves" was a walker fault). The 18 are TEN on 12.0 CINNABAR
-    ISLAND in five adjacent PAIRS, 3 on 10.9, 2 on 14.2, and one each on 1.60 and 35.1 — and
+    ISLAND in five adjacent PAIRS ~~ten~~ **ELEVEN** (310), 3 on 10.9, 2 on 14.2, and one each on 1.60 and 35.1 — and
     **0 of the 18 needs a swimmer** (asked again with the water shut; one of the six runs surfs)
     — and **18 of the 18 stand in front of walkable ground no run ever stands on** (287). The
     whole bucket is POCKETS, not walls: CINNABAR ISLAND is 352 of its 438 walkable squares fenced
     off, and the "five adjacent pairs" are shopfronts on the wrong side of a fence. CLOSED
+    the 18 are **ELEVEN on 12.0 CINNABAR ISLAND**, not ten (310) — five adjacent PAIRS and one
+    more at (3,1), which is a different address; the ten-in-five-pairs was right and the eleventh
+    was lost when the total was written. 11 + 3 + 2 + 1 + 1 = 18
   A WIDE SIGN OR A WIDE WALK (283): 1.114 0x08163F5A's 154 reads in one run are **22 records on
     one map x 7 passes** — both, and neither alone. 59 of the **333** blocks any run reads are shared
     (327 until 307 added a seventh run to the union — a union is not a run, and its size is a
@@ -2331,10 +2379,14 @@ of the 295: 272 hold one, 10 hold 5-16, 8 hold 2-4, 3 hold more than 16, 2 hold 
 the 12 STRENGTH boulders are SEAFOAM and VICTORY ROAD, and their flags split THREE ways
 ~~869 places call 76 routines the widest run cannot answer~~ **873 / 80 at that same row** (309) —
   wrong before 307 or 308 touched anything, and now 895 / 86 at the widest row. In the table above.
-  279 of the places, across 59 routines,
-  have an answer nothing branches on — RE-RUN AT 264, it was 766/63/186; 860/75/276/58 until 285.
-  THAT PAIR IS NOT IN THE TABLE and was not re-run at 309 — it needs SpecialCalls' profiles as
-  well as the run, which is a join the floor table does not make
+  ~~279 of the places, across 59 routines, have an answer nothing branches on~~ **PAID AT 310**:
+  it reproduced EXACTLY at its own row, so it is in 309's "held" population and only the row moved.
+  **And it showed the total was wrong from the inside**: the four buckets at that row are
+  90 + 63 + 441 + 279 = **873**, which is what the run reads and not the 869 the line claimed —
+  a split contradicting its own total for the second time in two lines of this block (310).
+  RE-RUN AT 264, it was 766/63/186; 860/75/276/58 until 285.
+  Since 310's adoption the widest row reads **904 / 95** and the pairs are printed per setting by
+  `--the-floor`
 --routines: 1118 branching sites at 437 byte positions in the file; 48 routines are branched on
 0x188's one place comes to nothing
 0x4059 has one writer and NO readers anywhere; 0x4055 has 21 readers against a floor of 0
@@ -3229,7 +3281,15 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
 
 ## Open, and honestly owed
 
-* ~~**THE ANSWER SLOT IS NEVER CLEARED**~~ **MEASURED AND MOSTLY CLOSED AT 308.** The denominator
+* ~~**THE ANSWER SLOT IS NEVER CLEARED**~~ **CLOSED AT 310.** An unanswerable routine writes
+  NOUGHT into the slot now, which is what this project has said the run does since 214 and what
+  the code did not do. Read off the bytes rather than argued: the compare that read the stale
+  value sits after a `call` whose block's whole content is one `special` (`0x0171` and `0x018D`
+  are 28 of the 38), so what it is MEANT to read is that routine's answer — the run cannot have
+  it, must fall back on a convention, and a convention is nought and is not what a yes-or-no box
+  said earlier in the same script. Cost: **0 maps and 0 gating flags at every setting**; the only
+  flags it stops setting are `0x02C0`-`0x02CE`, none of which hides anything. `--leave-the-slot`
+  is the pre-310 behaviour. The 308 history: The denominator
   is 1143 places at the widest, of which 598 nobody reads and 533 read a leftover — and **85 of
   those took a different arm**, not the 506 the comparison column says. The CAUSE was the
   one-sided memory cut (trap 140), now fixed, and the leftover count went 533 -> 39. What is left:
