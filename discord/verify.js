@@ -719,6 +719,34 @@ t('a sync says where its figures came from before it posts any', () => {
     'provenance must be printed before the list of what changed');
 });
 
+t('any workflow that fills the copy builds the figures first', () => {
+  // .facts.json is derived and gitignored, so a fresh checkout has none. A
+  // workflow that runs verify.js or sync.js without building it first fails on
+  // an unreplaced {{placeholder}} — which is what happened on the first push.
+  for (const f of fsf.readdirSync('./workflows')) {
+    const y = fsf.readFileSync(`./workflows/${f}`, 'utf8');
+    const fillsCopy = /node (verify|sync)\.js/.test(y);
+    if (!fillsCopy) {
+      // And the converse: a workflow that does NOT touch the copy must not
+      // depend on the figures, or a missing note breaks the daily recap.
+      assert(!/node facts\.js/.test(y),
+        `${f} builds the figures but never fills the copy — that is a way to fail for an unrelated reason`);
+      continue;
+    }
+    assert(/node facts\.js --write/.test(y), `${f} runs the copy without building the figures first`);
+    assert(y.indexOf('node facts.js --write') < y.indexOf('node verify.js'),
+      `${f} builds the figures after checking the copy, which is too late`);
+  }
+});
+
+t('nothing in the tooling exits non-zero to mean "something changed"', () => {
+  // facts.js --write used to exit 10 for "figures moved". CI reads any non-zero
+  // exit as a failed step, so the first scheduled run went red for working.
+  const src = fsf.readFileSync('./facts.js', 'utf8');
+  assert(!/process\.exit\(same \? 0 : 10\)/.test(src), 'facts.js still exits 10 when figures move');
+  assert(/process\.exit\(0\);/.test(src), 'facts.js should exit 0 after a successful write');
+});
+
 console.log('\nWorkflows');
 
 const fsw = require('fs');

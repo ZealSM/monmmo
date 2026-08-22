@@ -278,8 +278,14 @@ function main() {
     console.log(same
       ? c.skip(`\n${path.basename(OUT)} rewritten — no figure changed.\n`)
       : c.head(`\n${path.basename(OUT)} written — ${prev ? 'figures moved' : 'first run'}.\n`));
-    // 0 = unchanged, 10 = something moved. The workflow reads this.
-    process.exit(same ? 0 : 10);
+    // A successful write EXITS 0, whether or not anything moved.
+    //
+    // This used to exit 10 to mean "figures moved". Nothing ever consumed it —
+    // sync.js already detects a change by hashing the filled copy — and CI reads
+    // any non-zero exit as a failed step, so the first scheduled run went red for
+    // doing exactly what it was supposed to do. A status code is for success and
+    // failure; "something changed" is what the output is for.
+    process.exit(0);
   }
 
   console.log(c.skip('\nNothing written. Use --write.\n'));
