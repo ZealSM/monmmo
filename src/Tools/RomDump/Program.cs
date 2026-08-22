@@ -15304,6 +15304,78 @@ public static class Program
         Console.WriteLine(
             "    A hunt that finds candidates and cannot choose between them has not found the"
             + " table, and saying so is the answer (222).");
+
+        // AND THE QUESTION NOBODY ASKED OF THEM (313).
+        //
+        // 302 scored these against a reversed-image floor and stopped. 312 established that a
+        // word equalling an address is not a pointer to it — four bytes in a compression region
+        // do that by accident — and that the test which means something is 246's: a THUMB
+        // `ldr rX, [pc, #imm]` whose arithmetic lands on exactly that word. It took the tutor
+        // table's hunt from 2 candidates to 1, and it was never asked here.
+        //
+        // Both counts, permanently: a base something merely EQUALS somewhere, and a base an
+        // instruction LOADS (25).
+        var equalled = new List<int>();
+        var loadedBases = new List<int>();
+
+        foreach ((int at, int _, int _) in could)
+        {
+            (int words, int loaded) = TheMoveTutors.PointedAtBy(rom, Rom.BaseAddress + (uint)at);
+
+            if (words > 0) equalled.Add(at);
+            if (loaded > 0) loadedBases.Add(at);
+        }
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    AND WHETHER ANYTHING LOADS ONE (313, applying 312's test): of the {could.Count} base(s),"
+            + $" {equalled.Count} are EQUALLED by an aligned word somewhere in the image and"
+            + $" {loadedBases.Count} are LOADED by an instruction.");
+
+        if (loadedBases.Count == 0)
+        {
+            Console.WriteLine(
+                "    NOUGHT — so the answer is still NOT FOUND, and now for a reason rather than for want of a"
+                + " way to choose: no routine in this cartridge loads any of them.");
+            return;
+        }
+
+        // AND THE DENSITY, WHICH IS THE CONTROL THIS HUNT NEVER HAD.
+        //
+        // "All 98 indices land on a ROM address" is satisfied for free inside a dense pointer
+        // table, and this cartridge has regions that are 86% addresses. The share of the base's
+        // OWN span that is an address at all is what says whether the condition discriminated —
+        // and printing it beside the count is the only way the reader can tell (25, 79).
+        int span = (ids.Max() + 1) * 4;
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"      base        equalled  loaded  dialogue  and how much of its own {span}-byte span"
+            + " is a ROM address AT ALL");
+
+        foreach (int at in loadedBases.Take(8))
+        {
+            (int words, int loaded) = TheMoveTutors.PointedAtBy(rom, Rom.BaseAddress + (uint)at);
+
+            Console.WriteLine(
+                $"      0x{Rom.BaseAddress + (uint)at:X8}  {words,8}  {loaded,6}"
+                + $"  {could.First(c => c.Base == at).ReadsAsText,4} of {ids.Length}"
+                + $"  {TwoColumnsOfOneKind.HowDense(image, at, span),8:P0}");
+        }
+
+        double densest = loadedBases.Max(at => TwoColumnsOfOneKind.HowDense(image, at, span));
+        double slackest = loadedBases.Min(at => TwoColumnsOfOneKind.HowDense(image, at, span));
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    EVERY ONE of the {loadedBases.Count} sits in a span that is {slackest:P0}..{densest:P0}"
+            + " ROM addresses to begin with, so NONE of them passed by being a table —");
+        Console.WriteLine(
+            "    they passed by being inside a pointer region, and they are one region rather than"
+            + $" {loadedBases.Count} candidates.");
+        Console.WriteLine(
+            "    STILL NOT FOUND (302's answer stands), and now for a measured reason rather than for want of a"
+            + " way to choose: the condition does not discriminate where these bases live.");
     }
 
     /// <summary>Whether a buried sign's own square is one somebody could stand on.</summary>

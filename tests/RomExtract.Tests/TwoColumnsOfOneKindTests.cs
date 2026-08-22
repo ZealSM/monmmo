@@ -102,4 +102,39 @@ public sealed class TwoColumnsOfOneKindTests
     {
         for (var i = 0; i < 4; i++) image[at + i] = (byte)(value >> (i * 8));
     }
+
+    /// <summary>
+    /// How much of a base's own span is a ROM address at all — <b>the control a pointer-table
+    /// hunt cannot do without</b> (313).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// "Every one of these 98 indices lands on a ROM address" sounds like a strong condition and
+    /// is satisfied for free inside a dense pointer table. On this cartridge every one of the 17
+    /// bases an instruction loads sits in a span that is <b>78-86%</b> ROM addresses before the
+    /// question is asked, so none of them passed by being a table.
+    /// </para>
+    /// <para>
+    /// Three densities named rather than one asserted, because a measure that returns a plausible
+    /// number for the case it was written on is not shown to be measuring anything (35).
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void TheDensityOfASpanIsWhatSaysWhetherTheConditionDiscriminated()
+    {
+        static byte[] Word(uint v) => [(byte)v, (byte)(v >> 8), (byte)(v >> 16), (byte)(v >> 24)];
+
+        byte[] allAddresses = [.. Word(0x08000000), .. Word(0x08123456), .. Word(0x08FFFFFF)];
+        byte[] none = [.. Word(0), .. Word(0x00400020), .. Word(0x09000000)];
+        byte[] half = [.. Word(0x08123456), .. Word(0x00400020), .. Word(0x08654321), .. Word(1)];
+
+        Assert.Equal(1.0, TwoColumnsOfOneKind.HowDense(allAddresses, 0, 12));
+        Assert.Equal(0.0, TwoColumnsOfOneKind.HowDense(none, 0, 12));
+        Assert.Equal(0.5, TwoColumnsOfOneKind.HowDense(half, 0, 16));
+
+        // AND THE SPAN IS OBEYED. A density that quietly reads the whole buffer would report the
+        // same number whatever it was asked, which is the one way this could look right and be
+        // useless.
+        Assert.Equal(1.0, TwoColumnsOfOneKind.HowDense(half, 0, 4));
+    }
 }

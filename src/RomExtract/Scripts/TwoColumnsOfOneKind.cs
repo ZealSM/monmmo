@@ -40,6 +40,43 @@ public sealed record HowMuchTwoOperandsShare(
 /// </summary>
 public static class TwoColumnsOfOneKind
 {
+    /// <summary>
+    /// What share of the aligned words a base's own span are ROM addresses at all (313).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>The control a pointer-table hunt cannot do without.</b> "Every one of these N indices
+    /// lands on a ROM address" sounds like a strong condition and is satisfied for free inside a
+    /// dense pointer table: this cartridge has regions that are <b>86%</b> ROM addresses, where
+    /// any base at all passes.
+    /// </para>
+    /// <para>
+    /// So the number that means something is not how many targets are addresses — it is how much
+    /// higher that is than the neighbourhood. A candidate whose span is already 86% addresses has
+    /// satisfied the test by being in a pointer region, and 302's 462 bases and the 17 of them an
+    /// instruction loads are all of them exactly that.
+    /// </para>
+    /// </remarks>
+    /// <param name="image">The bytes.</param>
+    /// <param name="at">The base, as an offset.</param>
+    /// <param name="span">How far past it to look — the same reach the indices have.</param>
+    public static double HowDense(byte[] image, int at, int span)
+    {
+        var addresses = 0;
+        var words = 0;
+
+        for (int off = at; off + 4 <= Math.Min(image.Length, at + span); off += 4)
+        {
+            words++;
+
+            uint word = (uint)(image[off] | (image[off + 1] << 8) | (image[off + 2] << 16) | (image[off + 3] << 24));
+
+            if (word is >= 0x08000000 and < 0x09000000) addresses++;
+        }
+
+        return words == 0 ? 0 : (double)addresses / words;
+    }
+
     /// <summary>The command.</summary>
     public const byte TheCommand = 0xA2;
 
