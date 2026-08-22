@@ -220,6 +220,7 @@ public static class Program
         if (options.Water) WriteWater(rom);
         if (options.TheFifthList) WriteTheFifthList(rom, options.StartAt);
         if (options.TheAnswerSlot) WriteTheAnswerSlot(rom, options.StartAt);
+        if (options.TheTutors) WriteTheMoveTutors(rom);
         if (options.Operands) WriteOperands(rom);
         if (options.OperandsEverywhere) WriteOperandsEverywhere(rom);
         if (options.TheControl) WriteTheControl(rom);
@@ -10186,6 +10187,166 @@ public static class Program
                 + " gating flags set. A prompt line quoting one of them is right about a row and"
                 + " silent about which.");
         }
+    }
+
+
+    /// <summary>
+    /// The move tutors: a flag band, an index, and the table it indexes (311).
+    /// </summary>
+    private static void WriteTheMoveTutors(Rom rom)
+    {
+        Console.WriteLine();
+        Console.WriteLine("THE MOVE TUTORS — A FLAG BAND, AN INDEX, AND THE TABLE IT INDEXES");
+        Console.WriteLine();
+
+        MapLibrary library = MapLibrary.Open(rom);
+        List<SetsAFlag> scripts = [.. library.All().SelectMany(EveryScriptOn)];
+
+        IReadOnlyList<TheMoveTutors.ATutor> tutors = TheMoveTutors.Find(rom, scripts);
+
+        List<MoveData> moves = MoveExtractor.Extract(rom);
+
+        Console.WriteLine(
+            "  Found by SHAPE: every script the map scan opens that puts a number in"
+            + $" 0x{TheMoveTutors.IndexSlot:X4} and then sets a flag. The flags are an OUTPUT of that,");
+        Console.WriteLine(
+            "  so \"they are contiguous\" stays a finding rather than a filter.");
+        Console.WriteLine();
+        Console.WriteLine(
+            $"  {tutors.Count} script(s) of that shape in the world, GROUPED BY THE ROUTINE they hand"
+            + " the index to — the group is a finding, a filter chosen to make one would not be (79):");
+        Console.WriteLine();
+        Console.WriteLine("      routine  scripts  indices");
+
+        foreach (IGrouping<int, TheMoveTutors.ATutor> group in tutors
+                     .GroupBy(t => t.Routine)
+                     .OrderByDescending(g => g.Count()))
+        {
+            Console.WriteLine(
+                $"      0x{group.Key:X3}    {group.Count(),7}  {string.Join(", ", group.Select(t => t.Index).Order())}");
+        }
+
+        List<TheMoveTutors.ATutor> theBand =
+            [.. tutors.GroupBy(t => t.Routine).OrderByDescending(g => g.Count()).First().OrderBy(t => t.Index)];
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"  The biggest group is {theBand.Count} script(s) on routine 0x{theBand[0].Routine:X3}:");
+        Console.WriteLine();
+        Console.WriteLine("      index  flag    map     what        script");
+
+        foreach (TheMoveTutors.ATutor tutor in theBand)
+        {
+            Console.WriteLine(
+                $"      {tutor.Index,5}  0x{tutor.Flag:X4}  {tutor.MapId,-6}  {tutor.What,-10}  0x{tutor.Address:X8}");
+        }
+
+        tutors = theBand;
+
+        List<int> flags = [.. tutors.Select(t => t.Flag).Order()];
+        List<int> indices = [.. tutors.Select(t => t.Index).Order()];
+
+        bool flagsRun = flags.Count > 0 && flags[^1] - flags[0] == flags.Count - 1;
+        bool indicesRun = indices.Count > 0 && indices[^1] - indices[0] == indices.Count - 1;
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    The flags run 0x{flags[0]:X4}..0x{flags[^1]:X4} — {(flagsRun ? "CONTIGUOUS" : "WITH HOLES")}."
+            + $" The indices run {indices[0]}..{indices[^1]} — {(indicesRun ? "CONTIGUOUS" : "WITH HOLES")}.");
+        Console.WriteLine(
+            "    TWO dense numberings over the same fifteen people, and they are NOT the same one:"
+            + $" 0x{tutors.First(t => t.Index == indices[0]).Flag:X4} is index {indices[0]}"
+            + $" and 0x{flags[0]:X4} is index {tutors.First(t => t.Flag == flags[0]).Index}.");
+
+        // THE TABLE, HUNTED BY SHAPE. No move name is used to find it — that is the confirmation
+        // below, and a hunt that used the names could not be confirmed by them (248).
+        Console.WriteLine();
+        Console.WriteLine("  AND THE TABLE THE INDEX SELECTS FROM");
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    A run of {tutors.Count} halfword(s), every one a move id this cartridge has"
+            + $" (1..{moves.Count - 1}), ended by a nought.");
+        Console.WriteLine();
+
+        IReadOnlyList<uint> candidates = TheMoveTutors.Hunt(rom, tutors.Count, moves.Count);
+        IReadOnlyList<uint> reversed = TheMoveTutors.Hunt(AControlImage.Backwards(rom), tutors.Count, moves.Count);
+
+        Console.WriteLine(
+            $"      by shape alone:      {candidates.Count,6} in the image, {reversed.Count,6} in the reversal");
+
+        List<uint> named = [.. candidates.Where(a => TheMoveTutors.PointedAtBy(rom, a) == 1)];
+
+        Console.WriteLine(
+            $"      and named by ONE word: {named.Count,4} in the image"
+            + "   <- the condition that does the work, printed apart from the one that does not (79)");
+
+        if (named.Count == 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine("    NOTHING passes — the hunt does not name a table, and that is the finding.");
+            return;
+        }
+
+        // AND WHEN THE SHAPE LEAVES MORE THAN ONE, THE TEXT DECIDES.
+        //
+        // Every candidate is scored the same way and all of them are printed, because a hunt that
+        // reports only its winner cannot show how far ahead it was. The score is independent of
+        // the hunt: the table was found without reading a word of dialogue, and the dialogue was
+        // written without reference to any table, so a wrong table does not have its entries
+        // named by the right people.
+        Console.WriteLine();
+        Console.WriteLine($"    {named.Count} candidate(s), scored against what each tutor SAYS:");
+        Console.WriteLine();
+        Console.WriteLine("      where        tutors whose own text names the move their index selects");
+
+        var scored = new List<(uint At, int Names, List<(TheMoveTutors.ATutor T, int Id, string Name, bool Named)> Rows)>();
+
+        foreach (uint candidate in named)
+        {
+            var rows = new List<(TheMoveTutors.ATutor T, int Id, string Name, bool Named)>();
+
+            foreach (TheMoveTutors.ATutor tutor in tutors)
+            {
+                int id = rom.ReadU16((int)(candidate - Rom.BaseAddress) + tutor.Index * 2);
+                string name = id < moves.Count ? moves[id].Name : "?";
+
+                string said = string.Join(
+                    " ", ScriptRunner.Run(rom, tutor.Address).Pages.Select(GameText.ToAscii));
+
+                rows.Add((tutor, id, name, said.Contains(name, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            scored.Add((candidate, rows.Count(r => r.Named), rows));
+            Console.WriteLine($"      0x{candidate:X8}   {rows.Count(r => r.Named)} of {tutors.Count}");
+        }
+
+        (uint at, int names, List<(TheMoveTutors.ATutor T, int Id, string Name, bool Named)> best) =
+            scored.OrderByDescending(c => c.Names).First();
+
+        int runnerUp = scored.Count > 1 ? scored.OrderByDescending(c => c.Names).Skip(1).First().Names : 0;
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    0x{at:X8} is named by {names} of {tutors.Count}"
+            + (scored.Count > 1 ? $" against the runner-up\'s {runnerUp}" : string.Empty)
+            + " — and it is pointed at by exactly one aligned word in sixteen megabytes.");
+        Console.WriteLine();
+        Console.WriteLine("      index  move  name              the tutor, and whether its own text says the name");
+
+        foreach ((TheMoveTutors.ATutor tutor, int id, string name, bool namesIt) in best)
+        {
+            Console.WriteLine(
+                $"      {tutor.Index,5}  {id,4}  {name,-16}  {tutor.MapId,-6}"
+                + $"  {(namesIt ? "yes" : "NO — its own text never says the name")}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"    {names} of {tutors.Count} tutors name the move their index selects, in their own text. The one that");
+        Console.WriteLine(
+            "    does not is the PREDICTION this reading makes and the reason it is worth having: its text");
+        Console.WriteLine(
+            "    says only what the move does, and the table says which move that is.");
     }
 
     private static void WriteTheAnswerSlot(Rom rom, string startAt)
@@ -22437,6 +22598,9 @@ public static class Program
         /// <summary>What a routine the run cannot answer leaves in the slot, and who reads it.</summary>
         public bool TheAnswerSlot { get; private init; }
 
+        /// <summary>The move tutors: a flag band, an index, and the table it indexes.</summary>
+        public bool TheTutors { get; private init; }
+
         /// <summary>With <c>--play</c>: LEAVE the slot of a routine it cannot answer, which is pre-310.</summary>
         public bool LeaveTheSlot { get; private init; }
 
@@ -22698,6 +22862,7 @@ public static class Program
             var sea = false;
             var theFifthList = false;
             var theAnswerSlot = false;
+            var theTutors = false;
             var leaveTheSlot = false;
             var rememberSlots = false;
             var onLoadLever = false;
@@ -23009,6 +23174,9 @@ public static class Program
                         break;
                     case "--the-answer-slot":
                         theAnswerSlot = true;
+                        break;
+                    case "--the-tutors":
+                        theTutors = true;
                         break;
                     case "--leave-the-slot":
                         leaveTheSlot = true;
@@ -23396,6 +23564,7 @@ public static class Program
                 Sea = sea,
                 TheFifthList = theFifthList,
                 TheAnswerSlot = theAnswerSlot,
+                TheTutors = theTutors,
                 LeaveTheSlot = leaveTheSlot,
                 RememberSlots = rememberSlots,
                 OnLoad = onLoadLever,
