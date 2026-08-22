@@ -6,7 +6,7 @@
 I'm building MonMMO, a from-scratch MMO whose data is extracted from my own Pokémon FireRed
 cartridge. C# / .NET 8, xUnit, Raylib-cs client, SQLite server. Repo is at
 `~/OneDrive/Desktop/pokemmo`, branch `main`, everything merged. Base is the tip of
-`claude-311`, **3563 tests green** — re-read at 297, where the old line still said `claude-314` and
+`claude-312`, **3563 tests green** — re-read at 297, where the old line still said `claude-314` and
 3274 (trap 14, in the sentence that tells you where you are standing).
 
 Standing rules — do not break these:
@@ -718,6 +718,23 @@ Traps worth carrying:
     what names their own blocks is a literal in code, which the climb had said per site since 191.
     **Before believing a proximity test, ask what it would find if the thing were merely nearby.**
 
+151. **A WORD THAT EQUALS AN ADDRESS IS NOT A POINTER TO IT** (312). 311 quoted *"pointed at by
+    exactly one aligned word in sixteen megabytes"* as the condition that took 81 candidates to 2.
+    Four bytes anywhere in a graphics or compression region can equal an address by accident, and
+    one does — `0x0823E140`'s single word sits at `0x245BBC` between `0x670B4E00` and
+    `0xC8BBD0BF`. **The right test was already here**: 246's THUMB `ldr rX, [pc, #imm]` whose
+    arithmetic lands on exactly that word, which only 2.4% of aligned words have. The tutor
+    table's is loaded at `0x120BD6`; the runner-up's is loaded by nothing. 81 -> 2 -> **1**.
+    **Every table this project has located by "a pointer to it" is owed the same question** —
+    302's 462 bases were scored against a reversed floor and never asked whether anything LOADS
+    them.
+
+150. **THE WINDOW WAS FIFTEEN BECAUSE I ASKED FOR FIFTEEN** (312). 311's runner-up is not a table
+    of fifteen: read wider it is a flat array of FOUR-halfword movesets, and the "terminator" the
+    hunt found is a record's empty fourth slot. The structure knows nothing about fifteen. A
+    length taken from the population being explained, imposed on a population being searched, will
+    find windows of that length in anything long enough — and they will look like tables.
+
 149. **FOUND BY SHAPE, CONFIRMED BY TEXT** (311). The strongest form of 248's rule this project
     has had. The tutor table was hunted with no move name in the hunt — fifteen halfwords, all
     valid move ids, ended by a nought, named by exactly one aligned word — and then scored by
@@ -1395,7 +1412,7 @@ Traps worth carrying:
 
 ## Where things are
 
-Read `claude/milestone-311-fifteen-people-and-a-table.md` first, then `310`, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
+Read `claude/milestone-312-the-pointer-that-was-not-one.md` first, then `311`, then `310`, then `309`, then `308`, then `307`, then `306`, then `305`, then `304`, then
 `303`, then `302`, then `301`, then `300`, then `299`, then `298`, then `297`, then `296`, then `295`, then `294`,
 then `293`, then `292`, then `291`, then `290`, then `289`, then `288`, then `287`, then `286`,
 then `285`, then `284`, then `283`, then `282`, then `281`, then `280`, then `279`, then `278`, then `277`, then `276`, then `275`, then `274`, then `273`, `272`, `271`, `270`, `269`, `268`, `267`, `266`, `265`, `264`, `263`, `262`, `261`, `260`, `259`, `258`, `257`,
@@ -1632,6 +1649,10 @@ at by exactly ONE aligned word in the image, found without reading a word of dia
 confirmed by dialogue at **14 of 15 against the runner-up candidate's 0**. The fifteenth is the
 PREDICTION: `3.1`'s text says only *"I learned how to eat dreams"* and index 10 is 138, DREAM
 EATER. The floor settles at THREE entries — one place in the image holds the first three.
+**312 STRENGTHENED THE HUNT AND THE ANSWER DID NOT MOVE**: requiring the address to be LOADED by
+an instruction (246's test) rather than merely equalled by an aligned word takes the candidates
+from 2 to **1**, and the runner-up turns out to be a fifteen-window into an array of four-halfword
+movesets. Both counts are printed, permanently.
 
 `--the-answer-slot` is 308, and it is the denominator 307 owed. A leftover can only be mistaken
 for an answer at a comparison that follows an UNANSWERED CALL with nothing in between, so it counts
@@ -3354,8 +3375,10 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
   * **What `0x0171` answers** — compiled code, the seventh wall of that kind.
   * **The two numberings have no known relation.** The flag order is not the index order and
     neither is map order. Whether the flag band follows some third order is unasked.
-  * **`0x0823E140` is the runner-up candidate and nobody looked at it** — fifteen move ids ended
-    by a nought with one aligned pointer to it, and NOT the tutor table. It is something.
+  * ~~**`0x0823E140` is the runner-up candidate**~~ **READ AT 312 and it was never a rival**: not
+    a table of fifteen at all but a window into a flat array of FOUR-halfword movesets, and its
+    "pointer" is a coincidental word nothing loads. **The array itself is still unnamed** — it has
+    the shape of a party record's moves and nothing here says whose.
   * **Nothing reads the table.** Teaching a move is not something the run, the server or the
     client can do; `--the-tutors` prints it and no code consumes it.
   * **The fifteenth tutor is behind the POKé DOLL** (`14.1` person 4, COPYCAT, MIMIC), which is
