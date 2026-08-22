@@ -186,7 +186,8 @@ public static class WhoNeverLeaves
                 if (ever)
                 {
                     flags.Add(person.HiddenBy);
-                    where.Add($"{map.Id} person {person.LocalId} behind 0x{person.HiddenBy:X4}");
+                    where.Add(
+                        $"0x{person.HiddenBy:X4}  {map.Id} person {person.LocalId}  {map.Name}");
                 }
 
                 objects.Add(person with { NeverLeaves = ever });

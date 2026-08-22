@@ -6,8 +6,9 @@
 I'm building MonMMO, a from-scratch MMO whose data is extracted from my own Pokémon FireRed
 cartridge. C# / .NET 8, xUnit, Raylib-cs client, SQLite server. Repo is at
 `~/OneDrive/Desktop/pokemmo`, branch `main`, everything merged. Base is the tip of
-`claude-313`, **3564 tests green** — re-read at 297, where the old line still said `claude-314` and
-3274 (trap 14, in the sentence that tells you where you are standing).
+`claude-314`, **3571 tests green** — re-read every time, because at 297 this same line still
+named a branch seventeen milestones ahead of the work and a test count four hundred short (trap
+14, sitting in the one sentence that tells you where you are standing).
 
 Standing rules — do not break these:
 
@@ -717,6 +718,31 @@ Traps worth carrying:
     reversal" is NOUGHT: all seven sit just after a neighbouring block that ends before them, and
     what names their own blocks is a literal in code, which the climb had said per site since 191.
     **Before believing a proximity test, ask what it would find if the thing were merely nearby.**
+
+155. **`ReadsAsAScript` IS TWO COMMANDS, AND THAT IS CHEAP** (314). Both flag sweeps and much
+    else are filtered by "these bytes decode as script", which is what keeps a sixteen-megabyte
+    scan from reporting every flag as moved. 314 is the first measurement of what the filter
+    costs: `checkflag F; end` is two commands, so compressed data produces it by the handful.
+    Asking which of fifteen flags anything still READS gave **1 in the image against 3 in the
+    reversal** — the finding under its own floor, and the one hit sits between `88 88` and
+    `33 33` at `0x08DBA154`. **Nothing that leans on `ReadsAsAScript` has had its floor taken
+    except this.**
+
+154. **THE FLOOR TOOK THE FINDING BACK, AND THAT IS THE FLOOR WORKING** (314). One flag of
+    fifteen was read by something, and it was `0x0089` — the exact flag 306 asked about. A clean
+    one-in-fifteen discrimination landing on the right person is the most convincing shape a
+    wrong answer has. It survived four minutes, because the reversal was written at the same time
+    as the count. **Three milestones running (310, 312, 313) a condition I chose turned out
+    weaker than the sentence I wrote about it; this is the fourth and the first caught inside its
+    own milestone.** The difference was not more care. It was building the control in the same
+    commit as the number.
+
+153. **A DECISION LEFT UNMADE IS A DECISION** (314). 306 put three ways of answering `0x0089` to
+    the operator and got none for eight milestones. Taking the third — mark the fact in the world
+    file by a derived rule — cost one afternoon and turned a question about ONE door into a class:
+    **56 people, 15 flags, biggest of them 31 across ten floors of SILPH CO.** **If a call goes
+    unmade twice, take the option that hardcodes nothing and say you are taking it** — the answer
+    was bigger than the question and nobody could have known that without asking.
 
 152. **"ALL N OF THESE LAND ON A POINTER" IS FREE INSIDE A POINTER TABLE** (313). 302's hunt for
     what `0xA2`'s index selects from found 462 bases and called the answer NOT FOUND for want of a
@@ -1647,7 +1673,15 @@ dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-answer-sl
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --the-tutors
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --leave-the-slot
 dotnet run -c Release --project src/Tools/RomDump -- firered.gba --play --say-yes --boat --surf --in-order --on-load
+dotnet run -c Release --project src/Tools/RomDump -- firered.gba --export-world out/world.bin --no-sprites
 ```
+
+**314's reading has no command of its own — it is in the EXPORT LOG**, because the mark it prints
+is the thing the export writes. `--export-world` now says how many of the 605 people a flag can
+hide are behind a flag nothing in the data sets (56, over 15 flags), prints the four exclusion
+counts beside it so the number can be read at all, names every marked person with their map, and
+then asks the other half: how many of those flags anything still READS, against the reversed
+image. That last pair is 1 against a floor of 3, which is why the answer is *none*.
 
 `--the-tutors` is 311: the flag band 310 left unread, and it is the MOVE TUTORS. Found by SHAPE —
 every script that puts a number in `0x8005` and hands it straight to a routine — and then GROUPED
@@ -1663,6 +1697,15 @@ EATER. The floor settles at THREE entries — one place in the image holds the f
 an instruction (246's test) rather than merely equalled by an aligned word takes the candidates
 from 2 to **1**, and the runner-up turns out to be a fifteen-window into an array of four-halfword
 movesets. Both counts are printed, permanently.
+
+`WhoNeverLeaves.Ever` is 314 and it is a RULE rather than a command: hidden by a flag, not on at
+the start, not moved by any script in the image, not a pickup, not an obstacle. It runs inside
+`--export-world` and its answer travels — `MapObject.NeverLeaves`, world file version **30**. The
+mark is on the PERSON and not on the door, because a fenced door needs a run, a lever and a grid
+and 211 keeps lever-dependent numbers out of a world record, while "nothing can remove this
+person" needs none of the three. `EverywhereInTheImage.EveryFlagAsked` is the sweep it needed —
+the mirror of `EveryFlagMoved`, same shape test — and it exists because a flag nothing sets is
+two things wearing one face: one compiled code owns and still reads, or one nothing refers to.
 
 `--the-answer-slot` is 308, and it is the denominator 307 owed. A leftover can only be mistaken
 for an answer at a comparison that follows an UNANSWERED CALL with nothing in between, so it counts
@@ -2328,6 +2371,19 @@ AND WHAT EACH FLAG COSTS (306): of 322 gating flags, TWO fence a door — 0x0005
   0x081C4F62, three of its four arms, and by nothing else the run can reach. With --on-load the
   fence list is ONE flag long — 0x0089 — and TRAINER TOWER's nine maps open. `--moved 0x0005` says
   `pass 4  2.1  0x081C4F62  set 0x0005  (OnLoad)`, and 0 sets without the lever
+  **AND 0x0089 IS ONE OF FIFTEEN** (314): asked of the FILE rather than of one run's unmet gates,
+  56 of the 605 people a flag can hide are behind a flag NOTHING in the data sets — no script
+  anywhere in the image, no pickup, no field move, and not a new game. 15 flags: 0x002D 0x0038
+  0x003A 0x004E 0x0053 0x0056 0x0057 0x005B 0x005E 0x0061 0x0071 0x0079 0x0089 0x008D 0x008F.
+  Against 355 whose flag a script moves, 76 hidden from the first frame, 184 picked up, 158
+  shifted by a field move (overlapping; they do not sum). The biggest is **0x0053 — 31 people
+  across ten floors of SILPH CO.**; 0x0089 hides 2 people on MT. EMBER — 306's "one person" was
+  the one FENCING the door on 1.103 (`1.97 person 3`) and stands; `1.97 person 2` fences nothing.
+  Each is marked `NeverLeaves` in the world file, which is version **30** now
+  AND NOTHING READS THEM EITHER (314): `EveryFlagAsked` is the other half of `EveryFlagMoved` —
+  1 of the 15 is asked about by something shaped like a script, at 0x08DBA154, **against a
+  reversed-image floor of 3**. Under the floor, and the site is inside compressed data (`88 88`,
+  `33 33`) where `checkflag; end` satisfies ReadsAsAScript. So: dead in both directions
 AND WHAT FENCES THOSE 43 (305; **41 at 307**, and 40 SEALED / 1 in the way once --on-load takes
   0x0005's person off 2.1): 41 SEALED, 2 with SOMEBODY STANDING IN THE WAY, 0 same-ground
   (288's must-be-nought, and it fired first time at 2 before the fourth fence was named), 0 behind
@@ -3421,12 +3477,23 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
   a variable and a value. The fifth has a kind byte and nothing else, so `--on-load` is MODELLED
   and every number it moves says so. If a way is ever found to read what kinds 1, 3, 5 and 7 mean,
   that is the milestone that makes this a correction instead of a lever.
-* **`0x0089` IS A DECISION FROM HERE** (306). Eight maps behind a person nothing in the file
-  removes. Three options and the third is the project's own idiom: leave it shut; MODEL an opener
-  (the first person this project would move on its own authority); or **mark the door shut-for-ever
-  in the world file** so a client treats it as scenery — the rule being *a fence held by a flag
-  nothing moves*, which is derived rather than a hand-written list. Mason raised blocking it off;
-  this is the version that does not hardcode anything.
+* ~~**`0x0089` IS A DECISION FROM HERE**~~ **TAKEN AT 314, third option** — after eight
+  milestones with the call unmade. The mark went on the PERSON rather than on the door, because a
+  fenced door needs a run, a lever and a grid and 211 keeps those out of a world record; a person
+  nothing can remove needs none of them. `MapObject.NeverLeaves`, world file version 30. And the
+  question was smaller than the answer: **it is 15 flags over 56 people**, not one door — and the
+  the flag hides two people on MT. EMBER where 306 counted one — 306 counted the one FENCING the
+  door and that stands; they are different questions. What is left of it:
+  * **Whether the mark means always-there or NEVER-there.** It says nothing sets the flag. That
+    this makes the person *present* needs the flag to start CLEAR, which comes from
+    `NewGameLocator`'s 49. If the cartridge sets any of these fifteen from compiled code at the
+    start, the mark is exactly backwards for those people. The only evidence either way is
+    indirect — the walker treats all 56 as present and solid, and 306's door measured shut.
+  * **`0x0053` holds 31 people across ten floors of SILPH CO.** and nothing knows what turns it.
+    One flag doing that much work is the largest unread lever the reading has, and it is a
+    building rather than a door.
+  * **`ReadsAsAScript`'s cost is now measured for the first time** (trap 155) and only here: 3
+    false flags of 15 in a scriptless file. Every other reading that leans on it is unasked.
 * ~~**`0x0005` is a `--play` question worth nine maps**~~ **ANSWERED AT 307.** `2.1 TRAINER
   TOWER`'s own unconditional script sets it at `0x081C4F62`, and no run reached it because **no
   run has ever opened that list** — the export carried the map script list's CONDITIONS and not
@@ -3448,8 +3515,9 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
 * ~~Why does the walk not enter a pocket it can see?~~ **ASKED AT 305 for the doors.** 41 of the
   43 are sealed — nothing but another door opens them, and for 39 nothing in the world lands
   anybody inside. The other 2 are **one person each**: flags `0x0089` (MT. EMBER, worth 8 maps) and
-  `0x0005` (TRAINER TOWER, worth 9). What is left: **what sets those two flags** — `--flags` ranks
-  who moves each one, and if nothing readable does they join the wall list; **what opens `0.1` and
+  `0x0005` (TRAINER TOWER, worth 9). **BOTH FLAGS ARE NOW ANSWERED** — `0x0005` by the fifth list
+  at 307, `0x0089` by 314's mark, which says nothing in the data sets it and nothing reads it.
+  What is left: **what opens `0.1` and
   `0.4`**, which have nineteen doors out and no door in, so it is not a warp; and the **three doors
   whose pocket the run could be put down in and never is** (`1.62`, `1.76`, `2.2`), one `--play`
   question apiece.
