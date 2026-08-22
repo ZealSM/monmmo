@@ -3324,7 +3324,8 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
   it, must fall back on a convention, and a convention is nought and is not what a yes-or-no box
   said earlier in the same script. Cost: **0 maps and 0 gating flags at every setting**; the only
   flags it stops setting are `0x02C0`-`0x02CE`, none of which hides anything. `--leave-the-slot`
-  is the pre-310 behaviour. The 308 history: The denominator
+  is the pre-310 behaviour. **AND AT 311 THAT BAND IS READ — they are the MOVE TUTORS**, one flag
+  each, and `0x0171`/`0x018D` are the pair every one of them calls. See `--the-tutors`. The 308 history: The denominator
   is 1143 places at the widest, of which 598 nobody reads and 533 read a leftover — and **85 of
   those took a different arm**, not the 506 the comparison column says. The CAUSE was the
   one-sided memory cut (trap 140), now fixed, and the leftover count went 533 -> 39. What is left:
@@ -3336,6 +3337,9 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
     costs 0 maps at every setting; with the memory rule fixed there is very little left for it.
   * **`0x0194`'s 20 arm changes and `0x0180`'s 19** were the two routines where a leftover
     genuinely decided something under the old rule. Nobody has asked what they should answer.
+    **`0x0171` and `0x018D` were the other two and 311 NAMED them** — the move tutors' pair:
+    `0x018D` is handed the index and teaches, `0x0171` is asked first and the run cannot have
+    its answer.
 * **THE KIND BYTE OF THE FIFTH LIST IS KEPT AND NOT USED** (307). 55 entries are kind 1, 130 are
   kind 3, 47 kind 5 and 2 kind 7, and `--on-load` runs all four the same way. It is the only thing
   in the data that says anything about WHEN, and asking the lever per kind is one parameter — it
@@ -3346,6 +3350,17 @@ the other, and nothing about a single green run says which. 207 writes the 2x2 d
 * **`--the-fifth-list`'s 47 gating flags have no cost column.** 306 built `WhatEachFlagCosts` for
   exactly that question and it is asked only of doors. What the other 46 hold, and whether any of
   them fences anything at all, is one join away and was not made.
+* **WHAT 311 LEFT.** The move tutors are read and the table is located; what is not:
+  * **What `0x0171` answers** — compiled code, the seventh wall of that kind.
+  * **The two numberings have no known relation.** The flag order is not the index order and
+    neither is map order. Whether the flag band follows some third order is unasked.
+  * **`0x0823E140` is the runner-up candidate and nobody looked at it** — fifteen move ids ended
+    by a nought with one aligned pointer to it, and NOT the tutor table. It is something.
+  * **Nothing reads the table.** Teaching a move is not something the run, the server or the
+    client can do; `--the-tutors` prints it and no code consumes it.
+  * **The fifteenth tutor is behind the POKé DOLL** (`14.1` person 4, COPYCAT, MIMIC), which is
+    why no run sets `0x02CD`. That is the purse and the unlocated payout table, meeting the
+    tutors at one person.
 * Held items are a sixth way a thing changes hands and `Everywhere` does not know.
 * ~~Whether the union differs from the final pass.~~ **MEASURED AT 240**: it does, at every one
   of the six settings — by 4 to 10 flags — and 190's "equal everywhere" was a fact about a run
